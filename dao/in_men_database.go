@@ -2,55 +2,70 @@ package dao
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/Tonioou/go-api-test/model"
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-memdb"
 	"github.com/joomcode/errorx"
+)
+
+var (
+	doOnce   sync.Once
+	database *InMemDatabase
 )
 
 type InMemDatabase struct {
 	db *memdb.MemDB
 }
 
-func NewInMemDatabase() *InMemDatabase {
-	schema := &memdb.DBSchema{
-		Tables: map[string]*memdb.TableSchema{
-			"person": {
-				Name: "person",
-				Indexes: map[string]*memdb.IndexSchema{
-					"id": {
-						Name:    "id",
-						Unique:  true,
-						Indexer: &memdb.StringFieldIndex{Field: "id"},
-					},
-					"age": {
-						Name:    "age",
-						Unique:  false,
-						Indexer: &memdb.IntFieldIndex{Field: "age"},
-					},
-					"email": {
-						Name:    "email",
-						Unique:  true,
-						Indexer: &memdb.StringFieldIndex{Field: "email"},
+func newInMemDatabase() *InMemDatabase {
+	doOnce.Do(
+		func() {
+			schema := &memdb.DBSchema{
+				Tables: map[string]*memdb.TableSchema{
+					"person": {
+						Name: "person",
+						Indexes: map[string]*memdb.IndexSchema{
+							"id": {
+								Name:    "id",
+								Unique:  true,
+								Indexer: &memdb.StringFieldIndex{Field: "id"},
+							},
+							"age": {
+								Name:    "age",
+								Unique:  false,
+								Indexer: &memdb.IntFieldIndex{Field: "age"},
+							},
+							"email": {
+								Name:    "email",
+								Unique:  true,
+								Indexer: &memdb.StringFieldIndex{Field: "email"},
+							},
+						},
 					},
 				},
-			},
+			}
+			db, err := memdb.NewMemDB(schema)
+			if err != nil {
+				panic(err)
+			}
+			database = &InMemDatabase{
+				db: db,
+			}
 		},
-	}
-	db, err := memdb.NewMemDB(schema)
-	if err != nil {
-		panic(err)
-	}
-	return &InMemDatabase{
-		db: db,
-	}
+	)
+	return database
 }
 
-func (id *InMemDatabase) Add(tableName string, obj interface{}) *errorx.Error {
+func GetDatabaseInMemoryDatabase() *InMemDatabase {
+	return newInMemDatabase()
+}
+func (id *InMemDatabase) Add(tableName string, obj interface{}) (uuid.UUID, *errorx.Error) {
 	txn := id.db.Txn(true)
 
 	if err := txn.Insert(tableName, obj); err != nil {
-		return errorx.Decorate(err, fmt.Sprintf("An error occurred while inserting data on %s", tableName))
+		return uuid.Nil, errorx.Decorate(err, fmt.Sprintf("An error occurred while inserting data on %s", tableName))
 	}
 
 	// Commit the transaction
@@ -59,7 +74,7 @@ func (id *InMemDatabase) Add(tableName string, obj interface{}) *errorx.Error {
 	// Create read-only transaction
 	txn = id.db.Txn(false)
 	defer txn.Abort()
-	return nil
+	return uuid.Nil, nil
 }
 
 func (id *InMemDatabase) Get() (interface{}, *errorx.Error) {
@@ -81,4 +96,8 @@ func (id *InMemDatabase) Get() (interface{}, *errorx.Error) {
 	txn = id.db.Txn(false)
 	defer txn.Abort()
 	return interface{}(people), nil
+}
+
+func (im *InMemDatabase) GetById(id uuid.UUID) (interface{}, *errorx.Error) {
+	return nil, nil
 }
