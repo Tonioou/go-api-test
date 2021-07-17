@@ -7,7 +7,7 @@ import (
 )
 
 type Person interface {
-	Post(person model.Person) (model.Person, *errorx.Error)
+	Post(person model.CreatePerson) (*model.Person, *errorx.Error)
 	Get() ([]model.Person, *errorx.Error)
 }
 
@@ -21,9 +21,13 @@ func NewPersonService() *PersonService {
 	}
 }
 
-func (ps *PersonService) Post(person model.Person) (model.Person, *errorx.Error) {
-	// return ps.personRepository.Add(person)
-	return model.Person{}, nil
+func (ps *PersonService) Post(createPerson model.CreatePerson) (*model.Person, *errorx.Error) {
+	person := model.NewPerson(createPerson.Age, createPerson.Email, createPerson.Name)
+	err := ps.personRepository.Add(person)
+	if err != nil {
+		return &model.Person{}, err
+	}
+	return person, nil
 }
 
 func (ps *PersonService) Get() ([]model.Person, *errorx.Error) {

@@ -30,17 +30,17 @@ func newInMemDatabase() *InMemDatabase {
 							"id": {
 								Name:    "id",
 								Unique:  true,
-								Indexer: &memdb.StringFieldIndex{Field: "id"},
+								Indexer: &memdb.StringFieldIndex{Field: "Id"},
 							},
 							"age": {
 								Name:    "age",
 								Unique:  false,
-								Indexer: &memdb.IntFieldIndex{Field: "age"},
+								Indexer: &memdb.IntFieldIndex{Field: "Age"},
 							},
 							"email": {
 								Name:    "email",
 								Unique:  true,
-								Indexer: &memdb.StringFieldIndex{Field: "email"},
+								Indexer: &memdb.StringFieldIndex{Field: "Email"},
 							},
 						},
 					},
@@ -61,11 +61,11 @@ func newInMemDatabase() *InMemDatabase {
 func GetDatabaseInMemoryDatabase() *InMemDatabase {
 	return newInMemDatabase()
 }
-func (id *InMemDatabase) Add(tableName string, obj interface{}) (uuid.UUID, *errorx.Error) {
+func (id *InMemDatabase) Add(tableName string, obj interface{}) *errorx.Error {
 	txn := id.db.Txn(true)
 
 	if err := txn.Insert(tableName, obj); err != nil {
-		return uuid.Nil, errorx.Decorate(err, fmt.Sprintf("An error occurred while inserting data on %s", tableName))
+		return errorx.Decorate(err, fmt.Sprintf("An error occurred while inserting data on %s", tableName))
 	}
 
 	// Commit the transaction
@@ -74,7 +74,7 @@ func (id *InMemDatabase) Add(tableName string, obj interface{}) (uuid.UUID, *err
 	// Create read-only transaction
 	txn = id.db.Txn(false)
 	defer txn.Abort()
-	return uuid.Nil, nil
+	return nil
 }
 
 func (id *InMemDatabase) Get() (interface{}, *errorx.Error) {

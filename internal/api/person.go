@@ -1,6 +1,9 @@
 package api
 
 import (
+	"net/http"
+
+	"github.com/Tonioou/go-api-test/internal/model"
 	"github.com/Tonioou/go-api-test/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -28,5 +31,17 @@ func (p *PersonApi) Get(c *gin.Context) {
 }
 
 func (p *PersonApi) Post(c *gin.Context) {
+	var createPerson model.CreatePerson
+	if err := c.Bind(&createPerson); err != nil {
+		c.JSON(400, gin.H{"error": err})
+		return
+	}
+	person, err := p.service.Post(createPerson)
 
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Cause().Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, person)
 }

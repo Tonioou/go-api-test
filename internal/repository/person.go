@@ -8,23 +8,25 @@ import (
 )
 
 type Person interface {
-	Add(person model.Person) (uuid.UUID, *errorx.Error)
+	Add(person *model.Person) *errorx.Error
 	GetById(id uuid.UUID) (model.Person, *errorx.Error)
 	Get() ([]model.Person, *errorx.Error)
 }
 
 type PersonRepository struct {
-	database dao.Database
+	database  dao.Database
+	tableName string
 }
 
 func NewPersonRepository() *PersonRepository {
 	return &PersonRepository{
-		database: dao.GetDatabaseInMemoryDatabase(),
+		database:  dao.GetDatabaseInMemoryDatabase(),
+		tableName: "person",
 	}
 }
 
-func (pr *PersonRepository) Add(person model.Person) (uuid.UUID, *errorx.Error) {
-	return uuid.Nil, nil
+func (pr *PersonRepository) Add(person *model.Person) *errorx.Error {
+	return pr.database.Add(pr.tableName, interface{}(person))
 }
 
 func (pr *PersonRepository) GetById(id uuid.UUID) (model.Person, *errorx.Error) {
