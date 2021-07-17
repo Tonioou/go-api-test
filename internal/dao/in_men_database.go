@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Tonioou/go-api-test/model"
+	"github.com/Tonioou/go-api-test/internal/model"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-memdb"
 	"github.com/joomcode/errorx"

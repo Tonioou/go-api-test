@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/Tonioou/go-api-test/dao"
-	"github.com/Tonioou/go-api-test/model"
+	"github.com/Tonioou/go-api-test/internal/dao"
+	"github.com/Tonioou/go-api-test/internal/model"
 	"github.com/google/uuid"
 	"github.com/joomcode/errorx"
 )

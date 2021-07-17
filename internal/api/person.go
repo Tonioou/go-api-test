@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/Tonioou/go-api-test/service"
+	"github.com/Tonioou/go-api-test/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
