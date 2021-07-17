@@ -10,7 +10,7 @@ import (
 type Person interface {
 	Add(person *model.Person) *errorx.Error
 	GetById(id uuid.UUID) (model.Person, *errorx.Error)
-	Get() ([]model.Person, *errorx.Error)
+	Get() ([]*model.Person, *errorx.Error)
 }
 
 type PersonRepository struct {
@@ -33,6 +33,15 @@ func (pr *PersonRepository) GetById(id uuid.UUID) (model.Person, *errorx.Error) 
 	return model.Person{}, nil
 }
 
-func (pr *PersonRepository) Get() ([]model.Person, *errorx.Error) {
-	return nil, nil
+func (pr *PersonRepository) Get() ([]*model.Person, *errorx.Error) {
+	people := make([]*model.Person, 0)
+	items, err := pr.database.Get(pr.tableName)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range items {
+		person := item.(*model.Person)
+		people = append(people, person)
+	}
+	return people, nil
 }

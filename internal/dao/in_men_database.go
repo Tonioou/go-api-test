@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Tonioou/go-api-test/internal/model"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-memdb"
 	"github.com/joomcode/errorx"
@@ -61,6 +60,7 @@ func newInMemDatabase() *InMemDatabase {
 func GetDatabaseInMemoryDatabase() *InMemDatabase {
 	return newInMemDatabase()
 }
+
 func (id *InMemDatabase) Add(tableName string, obj interface{}) *errorx.Error {
 	txn := id.db.Txn(true)
 
@@ -77,27 +77,24 @@ func (id *InMemDatabase) Add(tableName string, obj interface{}) *errorx.Error {
 	return nil
 }
 
-func (id *InMemDatabase) Get() (interface{}, *errorx.Error) {
-	people := make([]*model.Person, 0)
+func (id *InMemDatabase) Get(tableName string) ([]interface{}, *errorx.Error) {
+	result := make([]interface{}, 0)
 	txn := id.db.Txn(false)
 	it, err := txn.Get("person", "id")
 	if err != nil {
-		panic(err)
+		return nil, errorx.Decorate(err, fmt.Sprintf("Error while retrieving data from %s", tableName))
 	}
 	for obj := it.Next(); obj != nil; obj = it.Next() {
-		p := obj.(*model.Person)
-		people = append(people, p)
+		result = append(result, obj)
 	}
 
 	// Commit the transaction
 	txn.Commit()
 
-	// Create read-only transaction
-	txn = id.db.Txn(false)
 	defer txn.Abort()
-	return interface{}(people), nil
+	return result, nil
 }
 
-func (im *InMemDatabase) GetById(id uuid.UUID) (interface{}, *errorx.Error) {
+func (im *InMemDatabase) GetById(tableName string, id uuid.UUID) (interface{}, *errorx.Error) {
 	return nil, nil
 }

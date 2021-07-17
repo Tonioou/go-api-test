@@ -24,10 +24,12 @@ func (p *PersonApi) Register(e *gin.Engine) {
 }
 
 func (p *PersonApi) Get(c *gin.Context) {
-	// hp.dao.Add()
-	// result := hp.dao.Get()
-	// people := result.([]*model.Person)
-	// json.NewEncoder(w).Encode(people)
+	people, err := p.service.Get()
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Cause().Error()})
+		return
+	}
+	c.JSON(http.StatusOK, people)
 }
 
 func (p *PersonApi) Post(c *gin.Context) {

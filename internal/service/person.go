@@ -8,7 +8,7 @@ import (
 
 type Person interface {
 	Post(person model.CreatePerson) (*model.Person, *errorx.Error)
-	Get() ([]model.Person, *errorx.Error)
+	Get() ([]*model.Person, *errorx.Error)
 }
 
 type PersonService struct {
@@ -30,6 +30,6 @@ func (ps *PersonService) Post(createPerson model.CreatePerson) (*model.Person, *
 	return person, nil
 }
 
-func (ps *PersonService) Get() ([]model.Person, *errorx.Error) {
-	return nil, nil
+func (ps *PersonService) Get() ([]*model.Person, *errorx.Error) {
+	return ps.personRepository.Get()
 }
