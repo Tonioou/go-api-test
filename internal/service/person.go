@@ -3,12 +3,14 @@ package service
 import (
 	"github.com/Tonioou/go-api-test/internal/model"
 	"github.com/Tonioou/go-api-test/internal/repository"
+	"github.com/google/uuid"
 	"github.com/joomcode/errorx"
 )
 
 type Person interface {
 	Post(person model.CreatePerson) (*model.Person, *errorx.Error)
 	Get() ([]*model.Person, *errorx.Error)
+	GetById(id uuid.UUID) (*model.Person, *errorx.Error)
 }
 
 type PersonService struct {
@@ -32,4 +34,8 @@ func (ps *PersonService) Post(createPerson model.CreatePerson) (*model.Person, *
 
 func (ps *PersonService) Get() ([]*model.Person, *errorx.Error) {
 	return ps.personRepository.Get()
+}
+
+func (ps *PersonService) GetById(id uuid.UUID) (*model.Person, *errorx.Error) {
+	return ps.personRepository.GetById(id)
 }

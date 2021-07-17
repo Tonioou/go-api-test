@@ -6,6 +6,8 @@ import (
 	"github.com/Tonioou/go-api-test/internal/model"
 	"github.com/Tonioou/go-api-test/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/joomcode/errorx"
 )
 
 type PersonApi struct {
@@ -19,14 +21,36 @@ func NewPersonApi() *PersonApi {
 }
 
 func (p *PersonApi) Register(e *gin.Engine) {
-	e.GET("/person", p.Get)
-	e.POST("/person", p.Post)
+	person := e.Group("/person")
+	person.GET("/", p.Get)
+	person.GET("/:id", p.GetById)
+	person.POST("/", p.Post)
 }
 
 func (p *PersonApi) Get(c *gin.Context) {
 	people, err := p.service.Get()
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Cause().Error()})
+		return
+	}
+	c.JSON(http.StatusOK, people)
+}
+
+func (p *PersonApi) GetById(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		errx := errorx.Decorate(err, "Invalid id")
+		c.JSON(500, gin.H{"error": errx.Cause().Error()})
+		return
+	}
+	people, errx := p.service.GetById(id)
+	if errx != nil {
+		c.JSON(400, gin.H{"error": errx.Cause().Error()})
+		return
+	}
+	if people.Id == "" {
+		c.JSON(404, gin.H{})
 		return
 	}
 	c.JSON(http.StatusOK, people)

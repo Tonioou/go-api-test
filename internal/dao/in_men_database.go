@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/go-memdb"
 	"github.com/joomcode/errorx"
 )
@@ -61,8 +60,8 @@ func GetDatabaseInMemoryDatabase() *InMemDatabase {
 	return newInMemDatabase()
 }
 
-func (id *InMemDatabase) Add(tableName string, obj interface{}) *errorx.Error {
-	txn := id.db.Txn(true)
+func (im *InMemDatabase) Add(tableName string, obj interface{}) *errorx.Error {
+	txn := im.db.Txn(true)
 
 	if err := txn.Insert(tableName, obj); err != nil {
 		return errorx.Decorate(err, fmt.Sprintf("An error occurred while inserting data on %s", tableName))
@@ -70,17 +69,14 @@ func (id *InMemDatabase) Add(tableName string, obj interface{}) *errorx.Error {
 
 	// Commit the transaction
 	txn.Commit()
-
-	// Create read-only transaction
-	txn = id.db.Txn(false)
 	defer txn.Abort()
 	return nil
 }
 
-func (id *InMemDatabase) Get(tableName string) ([]interface{}, *errorx.Error) {
+func (im *InMemDatabase) Get(tableName string) ([]interface{}, *errorx.Error) {
 	result := make([]interface{}, 0)
-	txn := id.db.Txn(false)
-	it, err := txn.Get("person", "id")
+	txn := im.db.Txn(false)
+	it, err := txn.Get(tableName, "id")
 	if err != nil {
 		return nil, errorx.Decorate(err, fmt.Sprintf("Error while retrieving data from %s", tableName))
 	}
@@ -95,6 +91,20 @@ func (id *InMemDatabase) Get(tableName string) ([]interface{}, *errorx.Error) {
 	return result, nil
 }
 
-func (im *InMemDatabase) GetById(tableName string, id uuid.UUID) (interface{}, *errorx.Error) {
+func (im *InMemDatabase) GetById(tableName string, id string) (interface{}, *errorx.Error) {
+	txn := im.db.Txn(false)
+	raw, err := txn.Last(tableName, "id", id)
+	if err != nil {
+		return nil, errorx.Decorate(err, fmt.Sprintf("Error while retrieving data from %s", tableName))
+	}
+
+	// Commit the transaction
+	txn.Commit()
+
+	defer txn.Abort()
+	return raw, nil
+}
+
+func (im *InMemDatabase) Delete(tableName string, id string) (interface{}, *errorx.Error) {
 	return nil, nil
 }

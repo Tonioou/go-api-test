@@ -9,7 +9,7 @@ import (
 
 type Person interface {
 	Add(person *model.Person) *errorx.Error
-	GetById(id uuid.UUID) (model.Person, *errorx.Error)
+	GetById(id uuid.UUID) (*model.Person, *errorx.Error)
 	Get() ([]*model.Person, *errorx.Error)
 }
 
@@ -29,8 +29,15 @@ func (pr *PersonRepository) Add(person *model.Person) *errorx.Error {
 	return pr.database.Add(pr.tableName, interface{}(person))
 }
 
-func (pr *PersonRepository) GetById(id uuid.UUID) (model.Person, *errorx.Error) {
-	return model.Person{}, nil
+func (pr *PersonRepository) GetById(id uuid.UUID) (*model.Person, *errorx.Error) {
+	item, err := pr.database.GetById(pr.tableName, id.String())
+	if err != nil {
+		return nil, err
+	}
+	if item == nil {
+		return &model.Person{}, nil
+	}
+	return item.(*model.Person), nil
 }
 
 func (pr *PersonRepository) Get() ([]*model.Person, *errorx.Error) {
