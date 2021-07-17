@@ -6,8 +6,6 @@ import (
 	"github.com/Tonioou/go-api-test/internal/model"
 	"github.com/Tonioou/go-api-test/internal/service"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"github.com/joomcode/errorx"
 )
 
 type PersonApi struct {
@@ -37,13 +35,7 @@ func (p *PersonApi) Get(c *gin.Context) {
 }
 
 func (p *PersonApi) GetById(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
-	if err != nil {
-		errx := errorx.Decorate(err, "Invalid id")
-		c.JSON(500, gin.H{"error": errx.Cause().Error()})
-		return
-	}
+	id := c.Param("id")
 	people, errx := p.service.GetById(id)
 	if errx != nil {
 		c.JSON(400, gin.H{"error": errx.Cause().Error()})
