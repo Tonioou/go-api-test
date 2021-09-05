@@ -8,7 +8,7 @@ package api_test
 
 // 	"github.com/stretchr/testify/assert"
 
-// 	"github.com/Tonioou/go-api-test/api"
+// 	"github.com/Tonioou/go-person-crud/api"
 // )
 
 // func TestHelloApi(t *testing.T) {

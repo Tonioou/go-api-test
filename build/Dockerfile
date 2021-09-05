@@ -10,10 +10,10 @@ RUN go mod download
 
 COPY ./ ./ 
 
-RUN CGO_ENABLED=0 GOOS=linux go build  -a -installsuffix cgo -o  go-api-test ./cmd/.
+RUN CGO_ENABLED=0 GOOS=linux go build  -a -installsuffix cgo -o  go-person-crud ./cmd/.
 
 FROM alpine:latest
 WORKDIR /app 
-COPY --from=builder /build/go-api-test .
+COPY --from=builder /build/go-person-crud .
 
-CMD ["/app/go-api-test"]
+CMD ["/app/go-person-crud"]

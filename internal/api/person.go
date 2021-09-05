@@ -3,8 +3,8 @@ package api
 import (
 	"net/http"
 
-	"github.com/Tonioou/go-api-test/internal/model"
-	"github.com/Tonioou/go-api-test/internal/service"
+	"github.com/Tonioou/go-person-crud/internal/model"
+	"github.com/Tonioou/go-person-crud/internal/service"
 	"github.com/gin-gonic/gin"
 )
 

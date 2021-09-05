@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/Tonioou/go-api-test/internal/model"
-	"github.com/Tonioou/go-api-test/internal/repository"
+	"github.com/Tonioou/go-person-crud/internal/model"
+	"github.com/Tonioou/go-person-crud/internal/repository"
 	"github.com/joomcode/errorx"
 )
 

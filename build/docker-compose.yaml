@@ -5,6 +5,6 @@ services:
         build: 
             context: ../
             dockerfile: build/Dockerfile
-        image: go-api-test:latest
+        image: go-person-crud:latest
         ports: 
             - "8080:8080"
