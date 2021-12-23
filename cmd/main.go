@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	prometheus_middleware "github.com/Tonioou/go-person-crud/internal/prometheus"
 	"github.com/gin-gonic/gin"
@@ -17,6 +20,22 @@ func main() {
 	ginMetrics.GET("/metrics", prometheus_middleware.PrometheusHandler())
 	go ginMetrics.Run(":8081")
 
+	sigs := make(chan os.Signal)
+
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	done := make(chan bool, 1)
+
+	go func() {
+		sig := <-sigs
+		fmt.Println()
+		fmt.Println(sig)
+		done <- true
+	}()
+
+	fmt.Println("awaiting signal")
+	<-done
+	fmt.Println("exiting")
 }
 
 func configureLog() {
