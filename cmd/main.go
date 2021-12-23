@@ -11,6 +11,6 @@ func main() {
 	go ginApi.Run(":8080")
 	ginMetrics := gin.Default()
 	ginMetrics.GET("/metrics", prometheus_middleware.PrometheusHandler())
-	ginMetrics.Run(":8081")
+	go ginMetrics.Run(":8081")
 
 }
