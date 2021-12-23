@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/Tonioou/go-person-crud/internal/api"
 	prometheus_middleware "github.com/Tonioou/go-person-crud/internal/prometheus"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -16,6 +17,10 @@ func main() {
 	ginApi := gin.Default()
 
 	go ginApi.Run(":8080")
+
+	todoApi := api.NewTodoApi()
+	todoApi.Register(ginApi)
+
 	ginMetrics := gin.Default()
 	ginMetrics.GET("/metrics", prometheus_middleware.PrometheusHandler())
 	go ginMetrics.Run(":8081")
