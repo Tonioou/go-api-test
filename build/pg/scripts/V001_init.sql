@@ -4,7 +4,10 @@ GRANT ALL PRIVILEGES ON DATABASE todo_list TO todo_app;
 
 CREATE TABLE Todo(
     id uuid not null primary key,
+    name text not null,
     created_at timestamp not null,
+    finished_at timestamp,
+    finished bool,
     active bool not null
 );
 
