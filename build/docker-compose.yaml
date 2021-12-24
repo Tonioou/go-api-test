@@ -10,19 +10,23 @@ services:
             - "8080:8080"
         networks:
             - todo
+        environment:
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_USERNAME=postgres
+            - POSTGRES_HOST=postgres
+        depends_on:
+            - postgres
     postgres:
         container_name: postgres
         build:
             context: ./pg
             dockerfile: Dockerfile
         ports: 
-           - "5432:5432"
-        environment:
-            - POSTGRES_PASSWORD=postgres
-            - POSTGRES_USER=postgres
-            - POSTGRES_HOST=postgres
+           - "5432:5432"        
         networks:
             - todo
+        environment:
+            - POSTGRES_PASSWORD=postgres            
 networks:
     todo:
         driver: bridge
