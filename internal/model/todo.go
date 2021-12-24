@@ -12,7 +12,7 @@ type Todo struct {
 	CreatedAt  time.Time `json:"created-at"`
 	FinishedAt time.Time `json:"finished-at"`
 	Finished   bool      `json:"finished"`
-	Enabled    bool      `json:"enabled"`
+	Active     bool      `json:"active"`
 }
 
 func NewTodo(name string) *Todo {
@@ -21,7 +21,7 @@ func NewTodo(name string) *Todo {
 		Name:      name,
 		CreatedAt: time.Now(),
 		Finished:  false,
-		Enabled:   true,
+		Active:    true,
 	}
 }
 

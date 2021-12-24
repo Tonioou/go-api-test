@@ -14,6 +14,8 @@ import (
 type Postgres interface {
 	Ping(ctx context.Context) *errorx.Error
 	Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, *errorx.Error)
+	Exec(ctx context.Context, query string, args ...interface{}) *errorx.Error
+	QueryRow(ctx context.Context, query string, args ...interface{}) (pgx.Row, *errorx.Error)
 }
 
 type PgClient struct {
@@ -65,18 +67,43 @@ func (pg *PgClient) Ping(ctx context.Context) *errorx.Error {
 	return nil
 }
 
-func (pg *PgClient) getConnection(ctx context.Context) *pgxpool.Pool {
+func (pg *PgClient) getConnection(ctx context.Context) (*pgxpool.Pool, *errorx.Error) {
 	err := pg.Ping(ctx)
 	if err != nil {
 		logrus.Error(errorx.Decorate(err, "failed to query database"))
 	}
-	return pg.conn
+	return pg.conn, nil
 }
+
 func (pg *PgClient) Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, *errorx.Error) {
-	pg.Ping(ctx)
-	rows, err := pg.getConnection(ctx).Query(ctx, query, args)
+	connection, errx := pg.getConnection(ctx)
+	if errx != nil {
+		return nil, errx
+	}
+	rows, err := connection.Query(ctx, query, args)
 	if err != nil {
 		return nil, errorx.Decorate(err, "failed to query database")
 	}
+	return rows, nil
+}
+
+func (pg *PgClient) Exec(ctx context.Context, query string, args ...interface{}) *errorx.Error {
+	connection, errx := pg.getConnection(ctx)
+	if errx != nil {
+		return errx
+	}
+	_, err := connection.Exec(ctx, query, args...)
+	if err != nil {
+		return errorx.Decorate(err, "failed to insert on database")
+	}
+	return nil
+}
+
+func (pg *PgClient) QueryRow(ctx context.Context, query string, args ...interface{}) (pgx.Row, *errorx.Error) {
+	connection, errx := pg.getConnection(ctx)
+	if errx != nil {
+		return nil, errx
+	}
+	rows := connection.QueryRow(ctx, query, args...)
 	return rows, nil
 }

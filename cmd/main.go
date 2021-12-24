@@ -5,15 +5,18 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/Tonioou/go-person-crud/internal/api"
+	"github.com/Tonioou/go-person-crud/internal/config"
 	prometheus_middleware "github.com/Tonioou/go-person-crud/internal/prometheus"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	configureLog()
+	config.NewLogger()
+	gin.SetMode(gin.ReleaseMode)
 	ginApi := gin.Default()
 
 	go ginApi.Run(":8080")
@@ -43,8 +46,12 @@ func main() {
 	fmt.Println("exiting")
 }
 
-func configureLog() {
-	logrus.SetFormatter(&logrus.JSONFormatter{})
-	logrus.SetOutput(os.Stdout)
-	logrus.SetLevel(logrus.WarnLevel)
+func GetLogger() *logrus.Entry {
+	entry := logrus.WithFields(
+		logrus.Fields{
+			"level":     config.GetConfig().LogLevel,
+			"timestamp": time.Now(),
+		},
+	)
+	return entry
 }

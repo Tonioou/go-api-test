@@ -11,6 +11,7 @@ type Config struct {
 	Postgres struct {
 		Url string
 	}
+	LogLevel string
 }
 
 var configRunOnce sync.Once
@@ -22,9 +23,10 @@ func GetConfig() *Config {
 		viper.SetConfigType("yaml")
 		viper.AutomaticEnv()
 
+		viper.SetDefault("log.level", "info")
 		viper.SetDefault("postgres.host", "localhost")
 		viper.SetDefault("postgres.port", 5432)
-		viper.SetDefault("postgres.username", "todo_app")
+		viper.SetDefault("postgres.username", "postgres")
 		viper.SetDefault("postgres.password", "postgres")
 		viper.SetDefault("postgres.database", "todo_list")
 
@@ -40,6 +42,7 @@ func GetConfig() *Config {
 			Postgres: struct{ Url string }{
 				Url: databaseUrl,
 			},
+			LogLevel: viper.GetString("log.level"),
 		}
 	})
 
