@@ -28,7 +28,7 @@ var pgClient *PgClient
 func newPgClient() *errorx.Error {
 	conn, err := pgxpool.Connect(context.Background(), config.GetConfig().Postgres.Url)
 	if err != nil {
-		errx := errorx.Decorate(err, "failed to connect")
+		errx := errorx.Decorate(err, "failed to connect to Database")
 		return errx
 	}
 	pgClient = &PgClient{
@@ -39,6 +39,7 @@ func newPgClient() *errorx.Error {
 
 func GetPgClient() *PgClient {
 	pgRunOnce.Do(func() {
+		pgClient = &PgClient{}
 		err := newPgClient()
 		if err != nil {
 			logrus.Error(err)
@@ -70,7 +71,8 @@ func (pg *PgClient) Ping(ctx context.Context) *errorx.Error {
 func (pg *PgClient) getConnection(ctx context.Context) (*pgxpool.Pool, *errorx.Error) {
 	err := pg.Ping(ctx)
 	if err != nil {
-		logrus.Error(errorx.Decorate(err, "failed to query database"))
+		errx := errorx.InternalError.New("failed to query database")
+		return nil, errx
 	}
 	return pg.conn, nil
 }

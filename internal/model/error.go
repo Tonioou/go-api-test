@@ -21,10 +21,9 @@ type ErrorResponse struct {
 type logFunc func(...interface{})
 
 func NewErrorResponse(errx *errorx.Error, log logFunc) *ErrorResponse {
-	log(errx.Cause().Error())
+	log(errx.Error())
 	errorResponse := &ErrorResponse{}
 	errorResponse.fillProperties(errx)
-
 	return errorResponse
 }
 
@@ -44,6 +43,6 @@ func (er *ErrorResponse) fillProperties(errx *errorx.Error) {
 	}
 
 	er.StatusCode = statusCode
-	er.Message = errx.Cause().Error()
+	er.Message = errx.Error()
 	er.Timestamp = time.Now()
 }
