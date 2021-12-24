@@ -57,7 +57,7 @@ func (ta *TodoApi) Save(c *gin.Context) {
 	}
 	result, errx := ta.TodoService.Save(ctx, addTodo)
 	if errx != nil {
-		errorResponse := model.NewErrorResponse(errx, config.Logger.Warn)
+		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
 		c.JSON(errorResponse.StatusCode, errorResponse)
 		return
 	}
