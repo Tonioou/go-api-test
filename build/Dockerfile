@@ -10,10 +10,10 @@ RUN go mod download
 
 COPY ./ ./ 
 
-RUN CGO_ENABLED=0 GOOS=linux go build  -a -installsuffix cgo -o  go-person-crud ./cmd/.
+RUN CGO_ENABLED=0 GOOS=linux go build  -a -installsuffix cgo -o  todo-list ./cmd/.
 
 FROM alpine:latest
 WORKDIR /app 
-COPY --from=builder /build/go-person-crud .
+COPY --from=builder /build/todo-list .
 
-CMD ["/app/go-person-crud"]
+CMD ["/app/todo-list"]
