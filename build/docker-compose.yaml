@@ -1,13 +1,15 @@
 version: "3.9"
 services:
-    # app:
-    #     container_name: todo-list
-    #     build: 
-    #         context: ../
-    #         dockerfile: build/Dockerfile
-    #     image: todo-list:latest
-    #     ports: 
-    #         - "8080:8080"
+    app:
+        container_name: todo-list
+        build: 
+            context: ../
+            dockerfile: build/Dockerfile
+        image: todo-list:latest
+        ports: 
+            - "8080:8080"
+        networks:
+            - todo
     postgres:
         container_name: postgres
         build:
@@ -18,3 +20,10 @@ services:
         environment:
             - POSTGRES_PASSWORD=postgres
             - POSTGRES_USER=postgres
+            - POSTGRES_HOST=postgres
+        networks:
+            - todo
+networks:
+    todo:
+        driver: bridge
+        

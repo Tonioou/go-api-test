@@ -24,7 +24,7 @@ func GetConfig() *Config {
 		viper.AutomaticEnv()
 
 		viper.SetDefault("log.level", "info")
-		viper.SetDefault("postgres.host", "localhost")
+		viper.SetDefault("postgres.host", "postgres")
 		viper.SetDefault("postgres.port", 5432)
 		viper.SetDefault("postgres.username", "postgres")
 		viper.SetDefault("postgres.password", "postgres")
