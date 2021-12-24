@@ -57,7 +57,7 @@ func (tr *TodoRepository) GetById(ctx context.Context, id uuid.UUID) (model.Todo
 	result.FinishedAt = sqlTime.Time
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Todo{}, model.NotFound.New("todo not found")
+			return model.Todo{}, model.NotFound.New("todo not found").Type().Wrap(err, "not found")
 		}
 		return model.Todo{}, errorx.Decorate(err, "failed to scan row")
 	}

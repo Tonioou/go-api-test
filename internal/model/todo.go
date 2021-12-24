@@ -10,7 +10,7 @@ type Todo struct {
 	Id         uuid.UUID `json:"id"`
 	Name       string    `json:"name"`
 	CreatedAt  time.Time `json:"created-at"`
-	FinishedAt time.Time `json:"finished-at"`
+	FinishedAt time.Time `json:"finished-at,omitempty"`
 	Finished   bool      `json:"finished"`
 	Active     bool      `json:"active"`
 }
