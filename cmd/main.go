@@ -2,16 +2,13 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
 	"github.com/Tonioou/go-person-crud/internal/api"
 	"github.com/Tonioou/go-person-crud/internal/config"
 	prometheus_middleware "github.com/Tonioou/go-person-crud/internal/prometheus"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -19,14 +16,20 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	ginApi := gin.Default()
 
-	go ginApi.Run(":8080")
+	go func() {
+		err := ginApi.Run(":8080")
+		config.Logger.Fatal(err.Error())
+	}()
 
 	todoApi := api.NewTodoApi()
 	todoApi.Register(ginApi)
 
 	ginMetrics := gin.Default()
 	ginMetrics.GET("/metrics", prometheus_middleware.PrometheusHandler())
-	go ginMetrics.Run(":8081")
+	go func() {
+		err := ginMetrics.Run(":8081")
+		config.Logger.Fatal(err.Error())
+	}()
 
 	sigs := make(chan os.Signal)
 
@@ -44,14 +47,4 @@ func main() {
 	fmt.Println("awaiting signal")
 	<-done
 	fmt.Println("exiting")
-}
-
-func GetLogger() *logrus.Entry {
-	entry := logrus.WithFields(
-		logrus.Fields{
-			"level":     config.GetConfig().LogLevel,
-			"timestamp": time.Now(),
-		},
-	)
-	return entry
 }
