@@ -13,7 +13,7 @@ import (
 type Todo interface {
 	GetById(ctx context.Context, id uuid.UUID) (model.Todo, *errorx.Error)
 	Save(ctx context.Context, addTodo *command.AddTodo) (model.Todo, *errorx.Error)
-	Update(ctx context.Context, todo model.Todo) (model.Todo, *errorx.Error)
+	Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, *errorx.Error)
 	Delete(ctx context.Context, id uuid.UUID) *errorx.Error
 }
 
@@ -38,10 +38,20 @@ func (tr *TodoService) Save(ctx context.Context, addTodo *command.AddTodo) (mode
 	return result, errx
 }
 
-func (tr *TodoService) Update(ctx context.Context, todo model.Todo) (model.Todo, *errorx.Error) {
-	return model.Todo{}, nil
+func (tr *TodoService) Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, *errorx.Error) {
+	_, errx := tr.TodoRepository.GetById(ctx, updateTodo.Id)
+	if errx != nil {
+		return model.Todo{}, errx
+	}
+	todo, errx := tr.TodoRepository.Update(ctx, updateTodo)
+	return todo, errx
 }
 
 func (tr *TodoService) Delete(ctx context.Context, id uuid.UUID) *errorx.Error {
-	return nil
+	_, errx := tr.TodoRepository.GetById(ctx, id)
+	if errx != nil {
+		return errx
+	}
+	return tr.TodoRepository.Delete(ctx, id)
+
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/Tonioou/go-person-crud/internal/model/command"
 
 	"github.com/Tonioou/go-person-crud/internal/client"
 	"github.com/Tonioou/go-person-crud/internal/model"
@@ -15,7 +16,7 @@ import (
 type Todo interface {
 	GetById(ctx context.Context, id uuid.UUID) (model.Todo, *errorx.Error)
 	Save(ctx context.Context, todo *model.Todo) (model.Todo, *errorx.Error)
-	Update(ctx context.Context, todo model.Todo) (model.Todo, *errorx.Error)
+	Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, *errorx.Error)
 	Delete(ctx context.Context, id uuid.UUID) *errorx.Error
 }
 
@@ -83,10 +84,27 @@ func (tr *TodoRepository) Save(ctx context.Context, todo *model.Todo) (model.Tod
 	return tr.GetById(ctx, id)
 }
 
-func (tr *TodoRepository) Update(ctx context.Context, todo model.Todo) (model.Todo, *errorx.Error) {
-	return model.Todo{}, nil
+func (tr *TodoRepository) Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, *errorx.Error) {
+	query := "UPDATE todo SET name=$1 where id=$2;"
+
+	args := []interface{}{
+		&updateTodo.Name,
+		&updateTodo.Id,
+	}
+
+	errx := tr.PgClient.Exec(ctx, query, args...)
+	if errx != nil {
+		return model.Todo{}, errx
+	}
+	return tr.GetById(ctx, updateTodo.Id)
 }
 
 func (tr *TodoRepository) Delete(ctx context.Context, id uuid.UUID) *errorx.Error {
-	return nil
+	query := "DELETE FROM  todo  where id=$1;"
+	args := []interface{}{
+		&id,
+	}
+
+	errx := tr.PgClient.Exec(ctx, query, args...)
+	return errx
 }

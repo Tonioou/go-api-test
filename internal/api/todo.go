@@ -34,7 +34,7 @@ func (ta *TodoApi) GetById(c *gin.Context) {
 	value := c.Param("id")
 	id, err := uuid.Parse(value)
 	if err != nil {
-		errorResponse := model.NewErrorResponse(errorx.Decorate(err, "failed to parse id"), config.Logger.Warn)
+		errorResponse := model.NewErrorResponse(errorx.Decorate(err, "failed to parse id"), config.Logger.Error)
 		c.JSON(errorResponse.StatusCode, errorResponse)
 		return
 	}
@@ -51,7 +51,7 @@ func (ta *TodoApi) Save(c *gin.Context) {
 	ctx := c.Request.Context()
 	addTodo, errx := request.InitializeAddTodo(c)
 	if errx != nil {
-		errorResponse := model.NewErrorResponse(errx, config.Logger.Warn)
+		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
 		c.JSON(errorResponse.StatusCode, errorResponse)
 		return
 	}
@@ -65,9 +65,36 @@ func (ta *TodoApi) Save(c *gin.Context) {
 }
 
 func (ta *TodoApi) Update(c *gin.Context) {
-	c.String(204, "updated")
+	ctx := c.Request.Context()
+	updateTodo, errx := request.InitializeUpdateTodo(c)
+	if errx != nil {
+		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
+		c.JSON(errorResponse.StatusCode, errorResponse)
+		return
+	}
+	result, errx := ta.TodoService.Update(ctx, updateTodo)
+	if errx != nil {
+		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
+		c.JSON(errorResponse.StatusCode, errorResponse)
+		return
+	}
+	c.JSON(204, result)
 }
 
 func (ta *TodoApi) Delete(c *gin.Context) {
-	c.String(204, "updated")
+	ctx := c.Request.Context()
+	value := c.Param("id")
+	id, err := uuid.Parse(value)
+	if err != nil {
+		errorResponse := model.NewErrorResponse(errorx.Decorate(err, "failed to parse id"), config.Logger.Error)
+		c.JSON(errorResponse.StatusCode, errorResponse)
+		return
+	}
+	errx := ta.TodoService.Delete(ctx, id)
+	if errx != nil {
+		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
+		c.JSON(errorResponse.StatusCode, errorResponse)
+		return
+	}
+	c.String(204, "delete")
 }
