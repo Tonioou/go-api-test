@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
-	"github.com/Tonioou/go-person-crud/internal/model"
-	"github.com/Tonioou/go-person-crud/internal/model/command"
-	"github.com/Tonioou/go-person-crud/internal/repository"
+	"github.com/Tonioou/go-todo-list/internal/model"
+	"github.com/Tonioou/go-todo-list/internal/model/command"
+	"github.com/Tonioou/go-todo-list/internal/repository"
 	"github.com/google/uuid"
 	"github.com/joomcode/errorx"
 )

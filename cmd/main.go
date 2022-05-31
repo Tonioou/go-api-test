@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/Tonioou/go-person-crud/internal/api"
-	"github.com/Tonioou/go-person-crud/internal/config"
-	prometheus_middleware "github.com/Tonioou/go-person-crud/internal/prometheus"
-	"github.com/gin-gonic/gin"
+	"github.com/Tonioou/go-todo-list/internal/api"
+	"github.com/Tonioou/go-todo-list/internal/config"
+	"github.com/labstack/echo-contrib/prometheus"
+	"github.com/labstack/echo/v4"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,21 +13,23 @@ import (
 
 func main() {
 	config.NewLogger()
-	gin.SetMode(gin.ReleaseMode)
-	ginApi := gin.Default()
 
+	e := echo.New()
 	go func() {
-		err := ginApi.Run(":8080")
+		err := e.Start(":8080")
 		config.Logger.Fatal(err.Error())
 	}()
 
 	todoApi := api.NewTodoApi()
-	todoApi.Register(ginApi)
+	todoApi.Register(e)
 
-	ginMetrics := gin.Default()
-	ginMetrics.GET("/metrics", prometheus_middleware.PrometheusHandler())
+	metrics := echo.New()
+	p := prometheus.NewPrometheus("echo", nil)
+	e.Use(p.HandlerFunc)
+	p.SetMetricsPath(metrics)
+
 	go func() {
-		err := ginMetrics.Run(":8081")
+		err := metrics.Start(":8081")
 		config.Logger.Fatal(err.Error())
 	}()
 

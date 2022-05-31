@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/Tonioou/go-person-crud/internal/model/command"
+	"github.com/Tonioou/go-todo-list/internal/model/command"
 
-	"github.com/Tonioou/go-person-crud/internal/client"
-	"github.com/Tonioou/go-person-crud/internal/model"
+	"github.com/Tonioou/go-todo-list/internal/client"
+	"github.com/Tonioou/go-todo-list/internal/model"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/joomcode/errorx"

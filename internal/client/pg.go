@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/Tonioou/go-person-crud/internal/config"
+	"github.com/Tonioou/go-todo-list/internal/config"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joomcode/errorx"

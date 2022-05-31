@@ -1,14 +1,13 @@
 package request
 
 import (
-	"github.com/Tonioou/go-person-crud/internal/model/command"
-	"github.com/gin-gonic/gin"
+	"github.com/Tonioou/go-todo-list/internal/model/command"
 	"github.com/joomcode/errorx"
 )
 
-func InitializeUpdateTodo(c *gin.Context) (*command.UpdateTodo, *errorx.Error) {
+func InitializeUpdateTodo(c echo.Context) (*command.UpdateTodo, *errorx.Error) {
 	var updateTodo command.UpdateTodo
-	if err := c.ShouldBindJSON(&updateTodo); err != nil {
+	if err := c.Bind(&updateTodo); err != nil {
 		return &updateTodo, errorx.Decorate(err, "failed to bind data")
 	}
 

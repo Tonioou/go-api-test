@@ -1,11 +1,10 @@
 package api
 
 import (
-	"github.com/Tonioou/go-person-crud/internal/api/request"
-	"github.com/Tonioou/go-person-crud/internal/config"
-	"github.com/Tonioou/go-person-crud/internal/model"
-	"github.com/Tonioou/go-person-crud/internal/service"
-	"github.com/gin-gonic/gin"
+	"github.com/Tonioou/go-todo-list/internal/api/request"
+	"github.com/Tonioou/go-todo-list/internal/config"
+	"github.com/Tonioou/go-todo-list/internal/model"
+	"github.com/Tonioou/go-todo-list/internal/service"
 	"github.com/google/uuid"
 	"github.com/joomcode/errorx"
 )
@@ -20,8 +19,8 @@ func NewTodoApi() *TodoApi {
 	}
 }
 
-func (ta *TodoApi) Register(gin *gin.Engine) {
-	v1 := gin.Group("/v1")
+func (ta *TodoApi) Register(echo *echo.Echo) {
+	v1 := echo.Group("/v1")
 
 	v1.GET("/todo/:id", ta.GetById)
 	v1.POST("/todo", ta.Save)
@@ -29,72 +28,65 @@ func (ta *TodoApi) Register(gin *gin.Engine) {
 	v1.DELETE("/todo/:id", ta.Delete)
 }
 
-func (ta *TodoApi) GetById(c *gin.Context) {
-	ctx := c.Request.Context()
+func (ta *TodoApi) GetById(c echo.Context) error {
+	ctx := c.Request().Context()
 	value := c.Param("id")
 	id, err := uuid.Parse(value)
 	if err != nil {
 		errorResponse := model.NewErrorResponse(errorx.Decorate(err, "failed to parse id"), config.Logger.Error)
-		c.JSON(errorResponse.StatusCode, errorResponse)
-		return
+		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 	result, errx := ta.TodoService.GetById(ctx, id)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		c.JSON(errorResponse.StatusCode, errorResponse)
-		return
+		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	c.JSON(200, result)
+	return c.JSON(200, result)
 }
 
-func (ta *TodoApi) Save(c *gin.Context) {
-	ctx := c.Request.Context()
+func (ta *TodoApi) Save(c echo.Context) error {
+	ctx := c.Request().Context()
 	addTodo, errx := request.InitializeAddTodo(c)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		c.JSON(errorResponse.StatusCode, errorResponse)
-		return
+		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 	result, errx := ta.TodoService.Save(ctx, addTodo)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		c.JSON(errorResponse.StatusCode, errorResponse)
-		return
+		return c.JSON(errorResponse.StatusCode, errorResponse)
+
 	}
-	c.JSON(201, result)
+	return c.JSON(201, result)
 }
 
-func (ta *TodoApi) Update(c *gin.Context) {
-	ctx := c.Request.Context()
+func (ta *TodoApi) Update(c echo.Context) error {
+	ctx := c.Request().Context()
 	updateTodo, errx := request.InitializeUpdateTodo(c)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		c.JSON(errorResponse.StatusCode, errorResponse)
-		return
+		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 	result, errx := ta.TodoService.Update(ctx, updateTodo)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		c.JSON(errorResponse.StatusCode, errorResponse)
-		return
+		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	c.JSON(204, result)
+	return c.JSON(204, result)
 }
 
-func (ta *TodoApi) Delete(c *gin.Context) {
-	ctx := c.Request.Context()
+func (ta *TodoApi) Delete(c echo.Context) error {
+	ctx := c.Request().Context()
 	value := c.Param("id")
 	id, err := uuid.Parse(value)
 	if err != nil {
 		errorResponse := model.NewErrorResponse(errorx.Decorate(err, "failed to parse id"), config.Logger.Error)
-		c.JSON(errorResponse.StatusCode, errorResponse)
-		return
+		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 	errx := ta.TodoService.Delete(ctx, id)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		c.JSON(errorResponse.StatusCode, errorResponse)
-		return
+		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	c.String(204, "delete")
+	return c.String(204, "delete")
 }
