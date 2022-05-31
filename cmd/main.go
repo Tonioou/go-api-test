@@ -6,6 +6,7 @@ import (
 	"github.com/Tonioou/go-todo-list/internal/config"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,6 +16,10 @@ func main() {
 	config.NewLogger()
 
 	e := echo.New()
+	e.HideBanner = true
+	e.HidePort = true
+	e.Use(middleware.Gzip())
+	e.Use(middleware.Logger())
 	go func() {
 		err := e.Start(":8080")
 		config.Logger.Fatal(err.Error())
@@ -24,6 +29,8 @@ func main() {
 	todoApi.Register(e)
 
 	metrics := echo.New()
+	metrics.HideBanner = true
+	metrics.HidePort = true
 	p := prometheus.NewPrometheus("echo", nil)
 	e.Use(p.HandlerFunc)
 	p.SetMetricsPath(metrics)

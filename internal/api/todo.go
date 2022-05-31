@@ -7,6 +7,7 @@ import (
 	"github.com/Tonioou/go-todo-list/internal/service"
 	"github.com/google/uuid"
 	"github.com/joomcode/errorx"
+	"github.com/labstack/echo/v4"
 )
 
 type TodoApi struct {
