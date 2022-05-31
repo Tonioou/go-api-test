@@ -1,12 +1,12 @@
 version: "3.9"
 services:
-    app:
+    todo-app:
         container_name: todo-list
-        build: 
+        build:
             context: ../
             dockerfile: build/Dockerfile
         image: todo-list:latest
-        ports: 
+        ports:
             - "8080:8080"
         networks:
             - todo
@@ -15,9 +15,9 @@ services:
             - POSTGRES_USERNAME=postgres
             - POSTGRES_HOST=postgres
         depends_on:
-            - postgres
-    postgres:
-        container_name: postgres
+            - todo-postgres
+    todo-postgres:
+        container_name: todo-postgres
         build:
             context: ./pg
             dockerfile: Dockerfile
