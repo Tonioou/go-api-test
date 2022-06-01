@@ -34,7 +34,7 @@ func (ta *TodoApi) Register(echo *echo.Echo) {
 func (ta *TodoApi) GetById(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	newcCtx, span := otel.Tracer("api-todo").Start(ctx, "GetById")
+	newCtx, span := otel.Tracer("api-todo").Start(ctx, "GetById")
 	defer span.End()
 	value := c.Param("id")
 	id, err := uuid.Parse(value)
@@ -44,7 +44,7 @@ func (ta *TodoApi) GetById(c echo.Context) error {
 		span.SetStatus(codes.Error, err.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	result, errx := ta.TodoService.GetById(newcCtx, id)
+	result, errx := ta.TodoService.GetById(newCtx, id)
 
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
@@ -57,14 +57,20 @@ func (ta *TodoApi) GetById(c echo.Context) error {
 
 func (ta *TodoApi) Save(c echo.Context) error {
 	ctx := c.Request().Context()
+	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Save")
+	defer span.End()
 	addTodo, errx := request.InitializeAddTodo(c)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
+		span.RecordError(errx)
+		span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	result, errx := ta.TodoService.Save(ctx, addTodo)
+	result, errx := ta.TodoService.Save(newCtx, addTodo)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
+		span.RecordError(errx)
+		span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 
 	}
@@ -73,14 +79,20 @@ func (ta *TodoApi) Save(c echo.Context) error {
 
 func (ta *TodoApi) Update(c echo.Context) error {
 	ctx := c.Request().Context()
+	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Update")
+	defer span.End()
 	updateTodo, errx := request.InitializeUpdateTodo(c)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
+		span.RecordError(errx)
+		span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	result, errx := ta.TodoService.Update(ctx, updateTodo)
+	result, errx := ta.TodoService.Update(newCtx, updateTodo)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
+		span.RecordError(errx)
+		span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 	return c.JSON(204, result)
@@ -88,15 +100,21 @@ func (ta *TodoApi) Update(c echo.Context) error {
 
 func (ta *TodoApi) Delete(c echo.Context) error {
 	ctx := c.Request().Context()
+	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Delete")
+	defer span.End()
 	value := c.Param("id")
 	id, err := uuid.Parse(value)
 	if err != nil {
 		errorResponse := model.NewErrorResponse(errorx.Decorate(err, "failed to parse id"), config.Logger.Error)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	errx := ta.TodoService.Delete(ctx, id)
+	errx := ta.TodoService.Delete(newCtx, id)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
+		span.RecordError(errx)
+		span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 	return c.String(204, "delete")

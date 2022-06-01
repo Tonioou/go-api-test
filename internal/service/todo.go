@@ -35,25 +35,31 @@ func (tr *TodoService) GetById(ctx context.Context, id uuid.UUID) (model.Todo, *
 }
 
 func (tr *TodoService) Save(ctx context.Context, addTodo *command.AddTodo) (model.Todo, *errorx.Error) {
+	newCtx, span := otel.Tracer("service-todo").Start(ctx, "Save")
+	defer span.End()
 	todo := model.NewTodo(addTodo.Name)
-	result, errx := tr.TodoRepository.Save(ctx, todo)
+	result, errx := tr.TodoRepository.Save(newCtx, todo)
 	return result, errx
 }
 
 func (tr *TodoService) Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, *errorx.Error) {
-	_, errx := tr.TodoRepository.GetById(ctx, updateTodo.Id)
+	newCtx, span := otel.Tracer("service-todo").Start(ctx, "Update")
+	defer span.End()
+	_, errx := tr.TodoRepository.GetById(newCtx, updateTodo.Id)
 	if errx != nil {
 		return model.Todo{}, errx
 	}
-	todo, errx := tr.TodoRepository.Update(ctx, updateTodo)
+	todo, errx := tr.TodoRepository.Update(newCtx, updateTodo)
 	return todo, errx
 }
 
 func (tr *TodoService) Delete(ctx context.Context, id uuid.UUID) *errorx.Error {
-	_, errx := tr.TodoRepository.GetById(ctx, id)
+	newCtx, span := otel.Tracer("service-todo").Start(ctx, "Update")
+	defer span.End()
+	_, errx := tr.TodoRepository.GetById(newCtx, id)
 	if errx != nil {
 		return errx
 	}
-	return tr.TodoRepository.Delete(ctx, id)
+	return tr.TodoRepository.Delete(newCtx, id)
 
 }

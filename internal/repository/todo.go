@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/Tonioou/go-todo-list/internal/model/command"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
 
 	"github.com/Tonioou/go-todo-list/internal/client"
 	"github.com/Tonioou/go-todo-list/internal/model"
@@ -31,6 +33,8 @@ func NewTodoRepository() *TodoRepository {
 }
 
 func (tr *TodoRepository) GetById(ctx context.Context, id uuid.UUID) (model.Todo, *errorx.Error) {
+	newCtx, span := otel.Tracer("repository-todo").Start(ctx, "GetById")
+	defer span.End()
 	result := model.Todo{}
 	query := `SELECT id, 
 					name,
@@ -41,8 +45,10 @@ func (tr *TodoRepository) GetById(ctx context.Context, id uuid.UUID) (model.Todo
 				FROM todo
 				WHERE id=$1;`
 
-	row, errx := tr.PgClient.QueryRow(ctx, query, id)
+	row, errx := tr.PgClient.QueryRow(newCtx, query, id)
 	if errx != nil {
+		span.RecordError(errx)
+		span.SetStatus(codes.Error, errx.Error())
 		return model.Todo{}, errx
 	}
 	var sqlTime sql.NullTime
@@ -60,12 +66,16 @@ func (tr *TodoRepository) GetById(ctx context.Context, id uuid.UUID) (model.Todo
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Todo{}, model.NotFound.New("todo not found")
 		}
+		span.RecordError(errx)
+		span.SetStatus(codes.Error, errx.Error())
 		return model.Todo{}, errorx.Decorate(err, "failed to scan row")
 	}
 	return result, nil
 }
 
 func (tr *TodoRepository) Save(ctx context.Context, todo *model.Todo) (model.Todo, *errorx.Error) {
+	newCtx, span := otel.Tracer("repository-todo").Start(ctx, "Save")
+	defer span.End()
 	query := "INSERT INTO todo (id, name, created_at, finished, active) VALUES ($1,$2,$3,$4,$5);"
 
 	id := uuid.New()
@@ -77,14 +87,18 @@ func (tr *TodoRepository) Save(ctx context.Context, todo *model.Todo) (model.Tod
 		&todo.Active,
 	}
 
-	errx := tr.PgClient.Exec(ctx, query, args...)
+	errx := tr.PgClient.Exec(newCtx, query, args...)
 	if errx != nil {
+		span.RecordError(errx)
+		span.SetStatus(codes.Error, errx.Error())
 		return model.Todo{}, errx
 	}
 	return tr.GetById(ctx, id)
 }
 
 func (tr *TodoRepository) Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, *errorx.Error) {
+	newCtx, span := otel.Tracer("repository-todo").Start(ctx, "Update")
+	defer span.End()
 	query := "UPDATE todo SET name=$1 where id=$2;"
 
 	args := []interface{}{
@@ -92,19 +106,28 @@ func (tr *TodoRepository) Update(ctx context.Context, updateTodo *command.Update
 		&updateTodo.Id,
 	}
 
-	errx := tr.PgClient.Exec(ctx, query, args...)
+	errx := tr.PgClient.Exec(newCtx, query, args...)
 	if errx != nil {
+		span.RecordError(errx)
+		span.SetStatus(codes.Error, errx.Error())
 		return model.Todo{}, errx
 	}
 	return tr.GetById(ctx, updateTodo.Id)
 }
 
 func (tr *TodoRepository) Delete(ctx context.Context, id uuid.UUID) *errorx.Error {
+	newCtx, span := otel.Tracer("repository-todo").Start(ctx, "Delete")
+	defer span.End()
 	query := "DELETE FROM  todo  where id=$1;"
 	args := []interface{}{
 		&id,
 	}
 
-	errx := tr.PgClient.Exec(ctx, query, args...)
-	return errx
+	errx := tr.PgClient.Exec(newCtx, query, args...)
+	if errx != nil {
+		span.RecordError(errx)
+		span.SetStatus(codes.Error, errx.Error())
+		return errx
+	}
+	return nil
 }
