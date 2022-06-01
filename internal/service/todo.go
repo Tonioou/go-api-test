@@ -2,13 +2,12 @@ package service
 
 import (
 	"context"
-	"go.opentelemetry.io/otel"
-
 	"github.com/Tonioou/go-todo-list/internal/model"
 	"github.com/Tonioou/go-todo-list/internal/model/command"
 	"github.com/Tonioou/go-todo-list/internal/repository"
 	"github.com/google/uuid"
 	"github.com/joomcode/errorx"
+	"go.opentelemetry.io/otel"
 )
 
 type Todo interface {

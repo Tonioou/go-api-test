@@ -1,4 +1,4 @@
-\c todo_list;
+\connect todo_list
 
 CREATE TABLE todo(
     id uuid not null primary key,

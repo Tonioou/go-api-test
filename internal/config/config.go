@@ -24,10 +24,10 @@ func GetConfig() *Configs {
 	configRunOnce.Do(func() {
 		config.SetDefault("service.name", "go-todo-list")
 		config.SetDefault("log.level", "info")
-		config.SetDefault("postgres.host", "postgres")
+		config.SetDefault("postgres.host", "localhost")
 		config.SetDefault("postgres.port", 5432)
-		config.SetDefault("postgres.username", "teste")
-		config.SetDefault("postgres.password", "test")
+		config.SetDefault("postgres.username", "todo_app")
+		config.SetDefault("postgres.password", "todo_app")
 		config.SetDefault("postgres.database", "todo_list")
 
 		config.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -46,8 +46,8 @@ func GetConfig() *Configs {
 			Postgres: struct{ Url string }{
 				Url: databaseUrl,
 			},
-			LogLevel:    viper.GetString("log.level"),
-			ServiceName: viper.GetString("service.name"),
+			LogLevel:    config.GetString("log.level"),
+			ServiceName: config.GetString("service.name"),
 		}
 	})
 
