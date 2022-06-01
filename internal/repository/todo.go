@@ -15,15 +15,8 @@ import (
 	"github.com/joomcode/errorx"
 )
 
-type Todo interface {
-	GetById(ctx context.Context, id uuid.UUID) (model.Todo, *errorx.Error)
-	Save(ctx context.Context, todo *model.Todo) (model.Todo, *errorx.Error)
-	Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, *errorx.Error)
-	Delete(ctx context.Context, id uuid.UUID) *errorx.Error
-}
-
 type TodoRepository struct {
-	PgClient client.Postgres
+	PgClient *client.PgClient
 }
 
 func NewTodoRepository() *TodoRepository {

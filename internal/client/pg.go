@@ -11,13 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Postgres interface {
-	Ping(ctx context.Context) *errorx.Error
-	Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, *errorx.Error)
-	Exec(ctx context.Context, query string, args ...interface{}) *errorx.Error
-	QueryRow(ctx context.Context, query string, args ...interface{}) (pgx.Row, *errorx.Error)
-}
-
 type PgClient struct {
 	conn *pgxpool.Pool
 }
