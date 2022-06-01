@@ -85,8 +85,6 @@ func main() {
 func newExporter() (trace.SpanExporter, error) {
 	return stdouttrace.New(
 		stdouttrace.WithWriter(os.Stdout),
-		// Use human-readable output.
-		stdouttrace.WithPrettyPrint(),
 	)
 }
 
