@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"go.opentelemetry.io/otel"
 
 	"github.com/Tonioou/go-todo-list/internal/model"
 	"github.com/Tonioou/go-todo-list/internal/model/command"
@@ -28,7 +29,9 @@ func NewTodoService() *TodoService {
 }
 
 func (tr *TodoService) GetById(ctx context.Context, id uuid.UUID) (model.Todo, *errorx.Error) {
-	result, errx := tr.TodoRepository.GetById(ctx, id)
+	newCtx, span := otel.Tracer("service-todo").Start(ctx, "GetById")
+	defer span.End()
+	result, errx := tr.TodoRepository.GetById(newCtx, id)
 	return result, errx
 }
 

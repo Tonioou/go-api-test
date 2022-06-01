@@ -8,6 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/joomcode/errorx"
 	"github.com/labstack/echo/v4"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
 )
 
 type TodoApi struct {
@@ -31,15 +33,23 @@ func (ta *TodoApi) Register(echo *echo.Echo) {
 
 func (ta *TodoApi) GetById(c echo.Context) error {
 	ctx := c.Request().Context()
+
+	newcCtx, span := otel.Tracer("api-todo").Start(ctx, "GetById")
+	defer span.End()
 	value := c.Param("id")
 	id, err := uuid.Parse(value)
 	if err != nil {
 		errorResponse := model.NewErrorResponse(errorx.Decorate(err, "failed to parse id"), config.Logger.Error)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	result, errx := ta.TodoService.GetById(ctx, id)
+	result, errx := ta.TodoService.GetById(newcCtx, id)
+
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
+		span.RecordError(errx)
+		span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 	return c.JSON(200, result)

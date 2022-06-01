@@ -1,12 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/Tonioou/go-todo-list/internal/api"
 	"github.com/Tonioou/go-todo-list/internal/config"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,6 +31,23 @@ func main() {
 		err := e.Start(":8080")
 		config.Logger.Fatal(err.Error())
 	}()
+
+	exp, err := newExporter()
+	if err != nil {
+		config.Logger.Fatal(err.Error())
+	}
+
+	tp := trace.NewTracerProvider(
+		trace.WithBatcher(exp),
+		trace.WithResource(newResource()),
+	)
+
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			config.Logger.Fatal(err.Error())
+		}
+	}()
+	otel.SetTracerProvider(tp)
 
 	todoApi := api.NewTodoApi()
 	todoApi.Register(e)
@@ -55,4 +79,27 @@ func main() {
 	fmt.Println("awaiting signal")
 	<-done
 	fmt.Println("exiting")
+}
+
+// newExporter returns a console exporter.
+func newExporter() (trace.SpanExporter, error) {
+	return stdouttrace.New(
+		stdouttrace.WithWriter(os.Stdout),
+		// Use human-readable output.
+		stdouttrace.WithPrettyPrint(),
+	)
+}
+
+// newResource returns a resource describing this application.
+func newResource() *resource.Resource {
+	r, _ := resource.Merge(
+		resource.Default(),
+		resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(config.GetConfig().ServiceName),
+			semconv.ServiceVersionKey.String("v0.1.0"),
+			attribute.String("environment", "demo"),
+		),
+	)
+	return r
 }
