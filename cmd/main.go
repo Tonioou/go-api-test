@@ -21,7 +21,6 @@ import (
 
 func main() {
 	config.NewLogger()
-
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true

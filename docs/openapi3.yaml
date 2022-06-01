@@ -1,0 +1,183 @@
+openapi: 3.0.0
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        status_code:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+    Todo:
+      type: object
+      properties:
+        active:
+          type: boolean
+        created-at:
+          type: string
+          format: date-time
+        finished:
+          type: boolean
+        finished-at:
+          type: string
+          format: date-time
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    SaveTodo:
+      type: object
+      properties:
+        name:
+          type: string
+    UpdateTodo:
+      type: object
+      properties:
+        name:
+          type: string
+  responses:
+    GeneralError:
+      description: General error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    IllegalArgument:
+      description: Illegal argument
+    NotFound:
+      description: Entity not found
+info:
+  title: Todo List
+  description: API Documentation of Todo List in Go
+  contact:
+    name: Antonio Marcos
+    url: https://github.com/Tonioou/go-todo-list/issues
+    email: antoniomarcos997@gmail.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+paths:
+  /todo:
+    get:
+      tags:
+        - Todo
+      responses:
+        '200':
+          description: all todo cards
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        default:
+          description: error response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Todo
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/SaveTodo'
+      responses:
+        '201':
+          description: todo added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        default:
+          description: error response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/Error'
+  /todo/{todoId}:
+    get:
+      tags:
+        - Todo
+      parameters:
+        - in: path
+          name: todoId
+          description: Todo card id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: all todo cards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        default:
+          description: error response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - Todo
+      parameters:
+        - name: todoId
+          in: path
+          description: Todo card id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/UpdateTodo'
+      responses:
+        '201':
+          description: todo added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        default:
+          description: error response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+servers:
+  - url: http://{host}:{port}/{basePath}
+    description: Application Server
+    variables:
+      basePath:
+        default: v1
+        description: Base Path to api
+      host:
+        default: localhost
+        description: Server host
+      port:
+        enum:
+          - "8080"
+          - "443"
+        default: "8080"
+  - url: http://{host}:{port}
+    description: Monitoring Server
+    variables:
+      host:
+        default: localhost
+        description: Monitoring host
+      port:
+        default: "8081"
+tags:
+  - name: Todo
+    description: Handle Todo Operations
