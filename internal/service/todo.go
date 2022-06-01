@@ -8,7 +8,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/joomcode/errorx"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Todo interface {
@@ -58,6 +60,7 @@ func (tr *TodoService) Update(ctx context.Context, updateTodo *command.UpdateTod
 	if errx != nil {
 		span.RecordError(errx)
 		span.SetStatus(codes.Error, errx.Error())
+		span.AddEvent("Todo Id does not exist", trace.WithAttributes(attribute.String("todo-id", updateTodo.Id.String())))
 		return model.Todo{}, errx
 	}
 	todo, errx := tr.TodoRepository.Update(newCtx, updateTodo)
@@ -75,6 +78,7 @@ func (tr *TodoService) Delete(ctx context.Context, id uuid.UUID) *errorx.Error {
 	if errx != nil {
 		span.RecordError(errx)
 		span.SetStatus(codes.Error, errx.Error())
+		span.AddEvent("Todo Id does not exist", trace.WithAttributes(attribute.String("todo-id", id.String())))
 		return errx
 	}
 	return tr.TodoRepository.Delete(newCtx, id)

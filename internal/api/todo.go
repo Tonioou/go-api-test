@@ -74,6 +74,7 @@ func (ta *TodoApi) Save(c echo.Context) error {
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 
 	}
+	span.AddEvent("what-is-an-event")
 	return c.JSON(201, result)
 }
 
