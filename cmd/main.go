@@ -8,9 +8,11 @@ import (
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
@@ -26,6 +28,7 @@ func main() {
 	e.HidePort = true
 	e.Use(middleware.Gzip())
 	e.Use(middleware.Logger())
+	e.Use(otelecho.Middleware("go-todo-list"))
 	go func() {
 		err := e.Start(":8080")
 		config.Logger.Fatal(err.Error())
@@ -47,7 +50,7 @@ func main() {
 		}
 	}()
 	otel.SetTracerProvider(tp)
-
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	todoApi := api.NewTodoApi()
 	todoApi.Register(e)
 
