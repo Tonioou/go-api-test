@@ -10,15 +10,19 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type TodoApi struct {
 	TodoService service.Todo
+	tracer      trace.Tracer
 }
 
 func NewTodoApi() *TodoApi {
+	tracer := otel.Tracer("api-todo")
 	return &TodoApi{
 		TodoService: service.NewTodoService(),
+		tracer:      tracer,
 	}
 }
 
@@ -32,9 +36,12 @@ func (ta *TodoApi) Register(echo *echo.Echo) {
 }
 
 func (ta *TodoApi) GetById(c echo.Context) error {
+	opts := []trace.SpanStartOption{
+		trace.WithSpanKind(trace.SpanKindClient),
+	}
 	ctx := c.Request().Context()
 
-	newCtx, span := otel.Tracer("api-todo").Start(ctx, "GetById")
+	newCtx, span := ta.tracer.Start(ctx, "GetById", opts...)
 	defer span.End()
 	value := c.Param("id")
 	id, err := uuid.Parse(value)
@@ -56,8 +63,11 @@ func (ta *TodoApi) GetById(c echo.Context) error {
 }
 
 func (ta *TodoApi) Save(c echo.Context) error {
+	opts := []trace.SpanStartOption{
+		trace.WithSpanKind(trace.SpanKindClient),
+	}
 	ctx := c.Request().Context()
-	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Save")
+	newCtx, span := ta.tracer.Start(ctx, "Save", opts...)
 	defer span.End()
 	addTodo, errx := request.InitializeAddTodo(c)
 	if errx != nil {
@@ -79,8 +89,11 @@ func (ta *TodoApi) Save(c echo.Context) error {
 }
 
 func (ta *TodoApi) Update(c echo.Context) error {
+	opts := []trace.SpanStartOption{
+		trace.WithSpanKind(trace.SpanKindClient),
+	}
 	ctx := c.Request().Context()
-	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Update")
+	newCtx, span := ta.tracer.Start(ctx, "Update", opts...)
 	defer span.End()
 	updateTodo, errx := request.InitializeUpdateTodo(c)
 	if errx != nil {
@@ -100,8 +113,11 @@ func (ta *TodoApi) Update(c echo.Context) error {
 }
 
 func (ta *TodoApi) Delete(c echo.Context) error {
+	opts := []trace.SpanStartOption{
+		trace.WithSpanKind(trace.SpanKindClient),
+	}
 	ctx := c.Request().Context()
-	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Delete")
+	newCtx, span := ta.tracer.Start(ctx, "Delete", opts...)
 	defer span.End()
 	value := c.Param("id")
 	id, err := uuid.Parse(value)
