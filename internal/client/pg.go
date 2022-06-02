@@ -24,9 +24,7 @@ func newPgClient() *errorx.Error {
 		errx := errorx.Decorate(err, "failed to connect to Database")
 		return errx
 	}
-	pgClient = &PgClient{
-		conn: conn,
-	}
+	pgClient.conn = conn
 	return nil
 }
 

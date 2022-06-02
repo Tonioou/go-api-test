@@ -16,15 +16,14 @@ services:
 #            - POSTGRES_PASSWORD=todo_app
 #            - POSTGRES_USERNAME=todo_app
 #            - POSTGRES_HOST=todo-postgres
-#            - JAEGER_URL=http://todo-jaeger:14268/api/traces
 #        restart: always
     todo-postgres:
         container_name: todo-postgres
         build:
             context: ./pg
             dockerfile: Dockerfile
-        ports: 
-           - "5432:5432"        
+        ports:
+           - "5432:5432"
         networks:
             - todo
         environment:
@@ -34,13 +33,25 @@ services:
         image: jaegertracing/all-in-one:1.35.1
         ports:
             - "16686:16686"
-            - "14268:14268"
-            - "4317:4317"
-            - "4318:4318"
-            - "5778:5778"
-            - "14250:14250"
+            - "14268"
+            - "14250"
         environment:
             - COLLECTOR_OTLP_ENABLED=true
+    todo-otel-collector:
+        container_name: todo-otel-collector
+        image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.52.0
+        ports:
+            - "1888:1888"
+            - "13133:13133"
+            - "4317:4317"
+            - "4318:4318"
+            - "55670:55679"
+        depends_on:
+            - todo-jaeger
+        volumes:
+            - ./otel-collector/otel-local-config.yaml:/etc/collector-gateway.yaml
+        command: ["--config=/etc/collector-gateway.yaml"]
+
 networks:
     todo:
         driver: bridge
