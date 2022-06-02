@@ -8,9 +8,9 @@ test:
 
 .PHONY: start
 start:
-	docker compose -f build/docker-compose.yaml up
+	docker compose -f build/docker-compose.yaml up -d
 
 .PHONY: stop
 stop:
 	docker compose -f build/docker-compose.yaml down
-	docker rmi $(docker images -q --filter "reference=*todo*" )
+	docker rmi $(docker images -q --filter "reference=*todo*")

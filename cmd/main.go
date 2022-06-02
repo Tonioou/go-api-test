@@ -11,7 +11,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
@@ -34,7 +34,7 @@ func main() {
 		config.Logger.Fatal(err.Error())
 	}()
 
-	exp, err := newExporter()
+	exp, err := newExporter(context.Background())
 	if err != nil {
 		config.Logger.Fatal(err.Error())
 	}
@@ -42,6 +42,7 @@ func main() {
 	tp := trace.NewTracerProvider(
 		trace.WithBatcher(exp),
 		trace.WithResource(newResource()),
+		trace.WithSampler(trace.ParentBased(trace.TraceIDRatioBased(5))),
 	)
 
 	defer func() {
@@ -84,10 +85,14 @@ func main() {
 }
 
 // newExporter returns a console exporter.
-func newExporter() (trace.SpanExporter, error) {
-	return stdouttrace.New(
-		stdouttrace.WithWriter(os.Stdout),
-	)
+func newExporter(ctx context.Context) (trace.SpanExporter, error) {
+	//client := otlptracegrpc.NewClient()
+	return jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(config.GetConfig().JaegerURL)))
+	//client := otlptracehttp.NewClient()
+	//return otlptrace.New(ctx, client)
+	//return stdouttrace.New(
+	//	stdouttrace.WithWriter(os.Stdout),
+	//)
 }
 
 // newResource returns a resource describing this application.

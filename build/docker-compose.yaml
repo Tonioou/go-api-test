@@ -1,26 +1,23 @@
 version: "3.9"
 services:
-    todo-app:
-        container_name: todo-list
-        build:
-            context: ../
-            dockerfile: build/Dockerfile
-        image: todo-list:latest
-        ports:
-            - "8080:8080"
-        networks:
-            - todo
-        depends_on:
-            - todo-postgres
-        environment:
-            - POSTGRES_PASSWORD=todo_app
-            - POSTGRES_USERNAME=todo_app
-            - POSTGRES_HOST=todo-postgres
-            - JAEGER_SERVICE_NAME=todo-list
-            - JAEGER_AGENT_HOST=jaeger
-            - JAEGER_REPORTER_LOG_SPANS=true
-            - JAEGER_SAMPLER_TYPE=const
-            - JAEGER_SAMPLE_PARAM=1
+#    todo-app:
+#        container_name: todo-list
+#        build:
+#            context: ../
+#            dockerfile: build/Dockerfile
+#        image: todo-list:latest
+#        ports:
+#            - "8080:8080"
+#        networks:
+#            - todo
+#        depends_on:
+#            - todo-postgres
+#        environment:
+#            - POSTGRES_PASSWORD=todo_app
+#            - POSTGRES_USERNAME=todo_app
+#            - POSTGRES_HOST=todo-postgres
+#            - JAEGER_URL=http://todo-jaeger:14268/api/traces
+#        restart: always
     todo-postgres:
         container_name: todo-postgres
         build:
@@ -32,10 +29,18 @@ services:
             - todo
         environment:
             - POSTGRES_PASSWORD=postgres
-    jaeger:
-        image: jaegertracing/all-in-one
+    todo-jaeger:
+        container_name: todo-jaeger
+        image: jaegertracing/all-in-one:1.35.1
         ports:
             - "16686:16686"
+            - "14268:14268"
+            - "4317:4317"
+            - "4318:4318"
+            - "5778:5778"
+            - "14250:14250"
+        environment:
+            - COLLECTOR_OTLP_ENABLED=true
 networks:
     todo:
         driver: bridge

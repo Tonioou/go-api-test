@@ -4,15 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/Tonioou/go-todo-list/internal/model/command"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
-
 	"github.com/Tonioou/go-todo-list/internal/client"
 	"github.com/Tonioou/go-todo-list/internal/model"
+	"github.com/Tonioou/go-todo-list/internal/model/command"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/joomcode/errorx"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
 )
 
 type TodoRepository struct {
