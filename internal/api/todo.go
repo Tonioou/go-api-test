@@ -11,6 +11,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
+	"time"
 )
 
 type TodoApi struct {
@@ -56,6 +57,7 @@ func (ta *TodoApi) GetById(c echo.Context) error {
 		span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
+	time.Sleep(4 * time.Second)
 	return c.JSON(200, result)
 }
 
