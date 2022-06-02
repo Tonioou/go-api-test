@@ -17,3 +17,11 @@ If you don't have make on your system then run from the root folder:
 `docker compose up -f build/docker-compose.yaml` to start the database and application
 
 and `docker compose down -f build/docker-compose.yaml` to stop.
+
+
+## Monitoring
+
+| Name   | Url                     |
+|--------|-------------------------|
+| Jaeger | http://localhost:16686/ |
+
