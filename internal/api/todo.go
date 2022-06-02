@@ -15,14 +15,11 @@ import (
 
 type TodoApi struct {
 	TodoService service.Todo
-	tracer      trace.Tracer
 }
 
 func NewTodoApi() *TodoApi {
-	tracer := otel.Tracer("api-todo")
 	return &TodoApi{
 		TodoService: service.NewTodoService(),
-		tracer:      tracer,
 	}
 }
 
@@ -41,7 +38,7 @@ func (ta *TodoApi) GetById(c echo.Context) error {
 	}
 	ctx := c.Request().Context()
 
-	newCtx, span := ta.tracer.Start(ctx, "GetById", opts...)
+	newCtx, span := otel.Tracer("api-todo").Start(ctx, "GetById", opts...)
 	defer span.End()
 	value := c.Param("id")
 	id, err := uuid.Parse(value)
@@ -67,7 +64,7 @@ func (ta *TodoApi) Save(c echo.Context) error {
 		trace.WithSpanKind(trace.SpanKindClient),
 	}
 	ctx := c.Request().Context()
-	newCtx, span := ta.tracer.Start(ctx, "Save", opts...)
+	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Save", opts...)
 	defer span.End()
 	addTodo, errx := request.InitializeAddTodo(c)
 	if errx != nil {
@@ -93,7 +90,7 @@ func (ta *TodoApi) Update(c echo.Context) error {
 		trace.WithSpanKind(trace.SpanKindClient),
 	}
 	ctx := c.Request().Context()
-	newCtx, span := ta.tracer.Start(ctx, "Update", opts...)
+	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Update", opts...)
 	defer span.End()
 	updateTodo, errx := request.InitializeUpdateTodo(c)
 	if errx != nil {
@@ -117,7 +114,7 @@ func (ta *TodoApi) Delete(c echo.Context) error {
 		trace.WithSpanKind(trace.SpanKindClient),
 	}
 	ctx := c.Request().Context()
-	newCtx, span := ta.tracer.Start(ctx, "Delete", opts...)
+	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Delete", opts...)
 	defer span.End()
 	value := c.Param("id")
 	id, err := uuid.Parse(value)
