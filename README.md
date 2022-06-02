@@ -10,7 +10,7 @@ You must have docker and docker compose installed on your machine
 
 To start the database and application run, if running in a linux with make installed run:
 
-`make start` and to shut down server `makstop`
+`make start` and to shut down server `make stop`
 
 If you don't have make on your system then run from the root folder:
 
