@@ -1,21 +1,26 @@
 version: "3.9"
 services:
-#    todo-app:
-#        container_name: todo-list
-#        build:
-#            context: ../
-#            dockerfile: build/Dockerfile
-#        image: todo-list:latest
-#        ports:
-#            - "8080:8080"
-#        networks:
-#            - todo
-#        environment:
-#            - POSTGRES_PASSWORD=postgres
-#            - POSTGRES_USERNAME=postgres
-#            - POSTGRES_HOST=postgres
-#        depends_on:
-#            - todo-postgres
+    todo-app:
+        container_name: todo-list
+        build:
+            context: ../
+            dockerfile: build/Dockerfile
+        image: todo-list:latest
+        ports:
+            - "8080:8080"
+        networks:
+            - todo
+        depends_on:
+            - todo-postgres
+        environment:
+            - POSTGRES_PASSWORD=todo_app
+            - POSTGRES_USERNAME=todo_app
+            - POSTGRES_HOST=todo-postgres
+            - JAEGER_SERVICE_NAME=todo-list
+            - JAEGER_AGENT_HOST=jaeger
+            - JAEGER_REPORTER_LOG_SPANS=true
+            - JAEGER_SAMPLER_TYPE=const
+            - JAEGER_SAMPLE_PARAM=1
     todo-postgres:
         container_name: todo-postgres
         build:
@@ -26,7 +31,11 @@ services:
         networks:
             - todo
         environment:
-            - POSTGRES_PASSWORD=postgres            
+            - POSTGRES_PASSWORD=postgres
+    jaeger:
+        image: jaegertracing/all-in-one
+        ports:
+            - "16686:16686"
 networks:
     todo:
         driver: bridge
