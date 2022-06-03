@@ -11,7 +11,6 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
-	"time"
 )
 
 type TodoApi struct {
@@ -34,11 +33,10 @@ func (ta *TodoApi) Register(echo *echo.Echo) {
 }
 
 func (ta *TodoApi) GetById(c echo.Context) error {
+	ctx := c.Request().Context()
 	opts := []trace.SpanStartOption{
 		trace.WithSpanKind(trace.SpanKindClient),
 	}
-	ctx := c.Request().Context()
-
 	newCtx, span := otel.Tracer("api-todo").Start(ctx, "GetById", opts...)
 	defer span.End()
 	value := c.Param("id")
@@ -49,6 +47,7 @@ func (ta *TodoApi) GetById(c echo.Context) error {
 		span.SetStatus(codes.Error, err.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
+
 	result, errx := ta.TodoService.GetById(newCtx, id)
 
 	if errx != nil {
@@ -57,7 +56,6 @@ func (ta *TodoApi) GetById(c echo.Context) error {
 		span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	time.Sleep(4 * time.Second)
 	return c.JSON(200, result)
 }
 
@@ -66,6 +64,7 @@ func (ta *TodoApi) Save(c echo.Context) error {
 		trace.WithSpanKind(trace.SpanKindClient),
 	}
 	ctx := c.Request().Context()
+
 	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Save", opts...)
 	defer span.End()
 	addTodo, errx := request.InitializeAddTodo(c)
@@ -84,6 +83,7 @@ func (ta *TodoApi) Save(c echo.Context) error {
 
 	}
 	span.AddEvent("what-is-an-event")
+
 	return c.JSON(201, result)
 }
 

@@ -18,6 +18,25 @@ If you don't have make on your system then run from the root folder:
 
 and `docker compose down -f build/docker-compose.yaml` to stop.
 
+## Tips
+
+If needed to pass the open telemetry headers (w3c,b3,..) you can use the following code, i'm using
+resty to do the http call, but the relevant part is related to otel.
+
+
+```go
+    url := "your_url"
+    client := resty.New()
+	req := client.
+		R().
+		SetContext(ctx).
+		EnableTrace()
+	
+	// the magic happens here
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
+	resp, err := req.Get(url)
+
+```
 
 ## Monitoring
 

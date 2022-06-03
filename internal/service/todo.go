@@ -76,7 +76,7 @@ func (tr *TodoService) Update(ctx context.Context, updateTodo *command.UpdateTod
 }
 
 func (tr *TodoService) Delete(ctx context.Context, id uuid.UUID) *errorx.Error {
-	newCtx, span := otel.Tracer("service-todo").Start(ctx, "Update")
+	newCtx, span := otel.Tracer("service-todo").Start(ctx, "Delete")
 	defer span.End()
 	_, errx := tr.todoRepository.GetById(newCtx, id)
 	if errx != nil {
