@@ -20,7 +20,14 @@ and `docker compose down -f build/docker-compose.yaml` to stop.
 
 ## Tips
 
-If needed to pass the open telemetry headers (w3c,b3,..) you can use the following code, i'm using
+Before the following code it's necessary to configure the TextMapPropagator just like this:
+```go
+otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+```
+
+Here's a reference link to link for [b3](https://opentelemetry.io/docs/instrumentation/go/manual/#propagators-and-context).
+
+Now, if needed to pass the open telemetry headers (w3c,b3,..) you can use the following code, i'm using
 resty to do the http call, but the relevant part is related to otel.
 
 
