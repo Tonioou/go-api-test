@@ -24,22 +24,11 @@ import (
 
 func main() {
 	config.NewLogger()
-	e := echo.New()
-	e.HideBanner = true
-	e.HidePort = true
-	e.Use(middleware.Gzip())
-	e.Use(middleware.Logger())
-	e.Use(otelecho.Middleware("go-todo-list"))
-	go func() {
-		err := e.Start(":8080")
-		config.Logger.Fatal(err.Error())
-	}()
 
 	exp, err := newExporter(context.Background())
 	if err != nil {
 		config.Logger.Fatal(err.Error())
 	}
-
 	tp := trace.NewTracerProvider(
 		trace.WithBatcher(exp),
 		trace.WithResource(newResource()),
@@ -53,6 +42,17 @@ func main() {
 	}()
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	e := echo.New()
+	e.HideBanner = true
+	e.HidePort = true
+	e.Use(middleware.Gzip())
+	e.Use(middleware.Logger())
+	e.Use(otelecho.Middleware("go-todo-list"))
+	go func() {
+		err := e.Start(":8080")
+		config.Logger.Fatal(err.Error())
+	}()
+
 	todoApi := api.NewTodoApi()
 	todoApi.Register(e)
 
@@ -88,12 +88,7 @@ func main() {
 // newExporter returns a console exporter.
 func newExporter(ctx context.Context) (trace.SpanExporter, error) {
 	client := otlptracegrpc.NewClient(otlptracegrpc.WithInsecure())
-	//return jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(config.GetConfig().JaegerURL)))
-	//client := otlptracehttp.NewClient()
 	return otlptrace.New(ctx, client)
-	//return stdouttrace.New(
-	//	stdouttrace.WithWriter(os.Stdout),
-	//)
 }
 
 // newResource returns a resource describing this application.
