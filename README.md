@@ -47,7 +47,10 @@ resty to do the http call, but the relevant part is related to otel.
 
 ## Monitoring
 
-| Name   | Url                     |
-|--------|-------------------------|
-| Jaeger | http://localhost:16686/ |
+| Name       | Url                     |
+|------------|-------------------------|
+| Jaeger     | http://localhost:16686/ |
+| Prometheus | http://localhost:9090/  |
+| Grafana    | http://localhost:3000/  |
+
 
