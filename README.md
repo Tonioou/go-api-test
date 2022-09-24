@@ -45,7 +45,7 @@ resty to do the http call, but the relevant part is related to otel.
 
 ```
 
-## Monitoring
+## Observability
 
 | Name       | Url                     |
 |------------|-------------------------|
