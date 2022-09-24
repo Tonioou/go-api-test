@@ -56,6 +56,7 @@ func (ta *TodoApi) GetById(c echo.Context) error {
 		span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
+	//otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(c.Response().Header()))
 	return c.JSON(200, result)
 }
 
