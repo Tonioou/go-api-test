@@ -66,6 +66,18 @@ services:
             - "9090:9090"
         networks:
             - todo
+    todo-grafana:
+        container_name: todo-grafana
+        image: grafana/grafana-oss
+        ports:
+            - "3000:3000"
+        volumes:
+            - "grafana-data:/var/lib/grafana"
+        networks:
+            - todo
+
+volumes:
+    grafana-data:
 
 
 networks:
