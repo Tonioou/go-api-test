@@ -1,22 +1,24 @@
 version: "3.9"
 services:
-#    todo-app:
-#        container_name: todo-list
-#        build:
-#            context: ../
-#            dockerfile: build/Dockerfile
-#        image: todo-list:latest
-#        ports:
-#            - "8080:8080"
-#        networks:
-#            - todo
-#        depends_on:
-#            - todo-postgres
-#        environment:
-#            - POSTGRES_PASSWORD=todo_app
-#            - POSTGRES_USERNAME=todo_app
-#            - POSTGRES_HOST=todo-postgres
-#        restart: always
+    todo-app:
+        container_name: todo-list
+        build:
+            context: ../
+            dockerfile: build/Dockerfile
+        image: todo-list:latest
+        ports:
+            - "8080:8080"
+            - "8081:8081"
+        networks:
+            - todo
+        depends_on:
+            - todo-postgres
+        environment:
+            - POSTGRES_PASSWORD=todo_app
+            - POSTGRES_USERNAME=todo_app
+            - POSTGRES_HOST=todo-postgres
+            - OTEL_EXPORTER_GRPC_ENDPOINT=todo-otel-collector
+        restart: always
     todo-postgres:
         container_name: todo-postgres
         build:
@@ -37,6 +39,8 @@ services:
             - "14250"
         environment:
             - COLLECTOR_OTLP_ENABLED=true
+        networks:
+            - todo
     todo-otel-collector:
         container_name: todo-otel-collector
         image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.52.0
@@ -48,9 +52,21 @@ services:
             - "55670:55679"
         depends_on:
             - todo-jaeger
+        networks:
+            - todo
         volumes:
             - ./otel-collector/otel-local-config.yaml:/etc/collector-gateway.yaml
         command: ["--config=/etc/collector-gateway.yaml"]
+    todo-prometheus:
+        container_name: todo-prometheus
+        build:
+            context: ./prometheus
+            dockerfile: Dockerfile
+        ports:
+            - "9090:9090"
+        networks:
+            - todo
+
 
 networks:
     todo:

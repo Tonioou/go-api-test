@@ -87,7 +87,7 @@ func main() {
 
 // newExporter returns a console exporter.
 func newExporter(ctx context.Context) (trace.SpanExporter, error) {
-	client := otlptracegrpc.NewClient(otlptracegrpc.WithInsecure())
+	client := otlptracegrpc.NewClient(otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpoint(config.GetConfig().Otel.GrpcEndpoint))
 	return otlptrace.New(ctx, client)
 }
 

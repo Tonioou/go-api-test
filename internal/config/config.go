@@ -15,6 +15,9 @@ type Configs struct {
 	LogLevel    string
 	ServiceName string
 	JaegerURL   string
+	Otel        struct {
+		GrpcEndpoint string
+	}
 }
 
 var configRunOnce sync.Once
@@ -30,7 +33,9 @@ func GetConfig() *Configs {
 		config.SetDefault("postgres.username", "todo_app")
 		config.SetDefault("postgres.password", "todo_app")
 		config.SetDefault("postgres.database", "todo_list")
-		config.SetDefault("jaeger.url", "http://localhost:14268/api/traces")
+		config.SetDefault("otel.exporter.grpc.endpoint", "localhost")
+		config.SetDefault("otel.exporter.grpc.port", "4317")
+
 		config.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 		config.AutomaticEnv()
@@ -50,6 +55,7 @@ func GetConfig() *Configs {
 			LogLevel:    config.GetString("log.level"),
 			ServiceName: config.GetString("service.name"),
 			JaegerURL:   config.GetString("jaeger.url"),
+			Otel:        struct{ GrpcEndpoint string }{GrpcEndpoint: fmt.Sprintf("%s:%s", config.GetString("otel.exporter.grpc.endpoint"), config.GetString("otel.exporter.grpc.port"))},
 		}
 	})
 
