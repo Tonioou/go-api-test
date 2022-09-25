@@ -10,9 +10,9 @@ processors:
   batch:
   resource:
     attributes:
-      - key: test.key
-        value: "testzin"
-        action: insert
+    - key: test.key
+      value: "testzin"
+      action: insert
 exporters:
   jaeger:
     endpoint: "todo-jaeger:14250"
