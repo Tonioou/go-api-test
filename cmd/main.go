@@ -68,7 +68,7 @@ func main() {
 		config.Logger.Fatal(err.Error())
 	}()
 
-	sigs := make(chan os.Signal)
+	sigs := make(chan os.Signal, 1)
 
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
