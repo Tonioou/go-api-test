@@ -2,7 +2,7 @@
 
 That's a todo crud, where i'm exercising some things and trying others
 like using open telemetry for tracing, writing my own openapi3 file, and
-exercising golang architecture.
+exercising golang architecture. 
 
 ## How to run
 
