@@ -34,26 +34,26 @@ func (ta *TodoApi) Register(echo *echo.Echo) {
 
 func (ta *TodoApi) GetById(c echo.Context) error {
 	ctx := c.Request().Context()
-	opts := []trace.SpanStartOption{
-		trace.WithSpanKind(trace.SpanKindClient),
-	}
-	newCtx, span := otel.Tracer("api-todo").Start(ctx, "GetById", opts...)
-	defer span.End()
+	//opts := []trace.SpanStartOption{
+	//	trace.WithSpanKind(trace.SpanKindClient),
+	//}
+	//newCtx, span := otel.Tracer("api-todo").Start(ctx, "GetById", opts...)
+	//defer span.End()
 	value := c.Param("id")
 	id, err := uuid.Parse(value)
 	if err != nil {
 		errorResponse := model.NewErrorResponse(errorx.Decorate(err, "failed to parse id"), config.Logger.Error)
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
+		//span.RecordError(err)
+		//span.SetStatus(codes.Error, err.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 
-	result, errx := ta.TodoService.GetById(newCtx, id)
+	result, errx := ta.TodoService.GetById(ctx, id)
 
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
+		//span.RecordError(errx)
+		//span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 	//otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(c.Response().Header()))
@@ -61,29 +61,29 @@ func (ta *TodoApi) GetById(c echo.Context) error {
 }
 
 func (ta *TodoApi) Save(c echo.Context) error {
-	opts := []trace.SpanStartOption{
-		trace.WithSpanKind(trace.SpanKindClient),
-	}
+	//opts := []trace.SpanStartOption{
+	//	trace.WithSpanKind(trace.SpanKindClient),
+	//}
 	ctx := c.Request().Context()
 
-	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Save", opts...)
-	defer span.End()
+	//newCtx, span := otel.Tracer("api-todo").Start(ctx, "Save", opts...)
+	//defer span.End()
 	addTodo, errx := request.InitializeAddTodo(c)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
+		//span.RecordError(errx)
+		//span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	result, errx := ta.TodoService.Save(newCtx, addTodo)
+	result, errx := ta.TodoService.Save(ctx, addTodo)
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
+		//span.RecordError(errx)
+		//span.SetStatus(codes.Error, errx.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 
 	}
-	span.AddEvent("what-is-an-event")
+	//span.AddEvent("what-is-an-event")
 
 	return c.JSON(201, result)
 }
