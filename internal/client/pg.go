@@ -48,7 +48,8 @@ func (pg *PgClient) Ping(ctx context.Context) *errorx.Error {
 	}
 	query := "SELECT 1;"
 
-	_, err := pg.conn.Query(ctx, query)
+	queryResult := 0
+	err := pg.conn.QueryRow(ctx, query).Scan(&queryResult)
 	if err != nil {
 		logrus.Error(errorx.Decorate(err, "failed to query database"))
 		err := newPgClient()
