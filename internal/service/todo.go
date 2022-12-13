@@ -2,11 +2,10 @@ package service
 
 import (
 	"context"
+
 	"github.com/Tonioou/go-todo-list/internal/model"
 	"github.com/Tonioou/go-todo-list/internal/model/command"
-	"github.com/Tonioou/go-todo-list/internal/repository"
 	"github.com/google/uuid"
-	"github.com/joomcode/errorx"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -14,10 +13,10 @@ import (
 )
 
 type Todo interface {
-	GetById(ctx context.Context, id uuid.UUID) (model.Todo, *errorx.Error)
-	Save(ctx context.Context, addTodo *command.AddTodo) (model.Todo, *errorx.Error)
-	Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, *errorx.Error)
-	Delete(ctx context.Context, id uuid.UUID) *errorx.Error
+	GetById(ctx context.Context, id uuid.UUID) (model.Todo, error)
+	Save(ctx context.Context, addTodo *command.AddTodo) (model.Todo, error)
+	Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type TodoRepository interface {
@@ -28,13 +27,13 @@ type TodoService struct {
 	todoRepository TodoRepository
 }
 
-func NewTodoService() *TodoService {
+func NewTodoService(repository TodoRepository) *TodoService {
 	return &TodoService{
-		todoRepository: repository.NewTodoRepository(),
+		todoRepository: repository,
 	}
 }
 
-func (tr *TodoService) GetById(ctx context.Context, id uuid.UUID) (model.Todo, *errorx.Error) {
+func (tr *TodoService) GetById(ctx context.Context, id uuid.UUID) (model.Todo, error) {
 	newCtx, span := otel.Tracer("service-todo").Start(ctx, "GetById")
 	defer span.End()
 	result, errx := tr.todoRepository.GetById(newCtx, id)
@@ -45,7 +44,7 @@ func (tr *TodoService) GetById(ctx context.Context, id uuid.UUID) (model.Todo, *
 	return result, errx
 }
 
-func (tr *TodoService) Save(ctx context.Context, addTodo *command.AddTodo) (model.Todo, *errorx.Error) {
+func (tr *TodoService) Save(ctx context.Context, addTodo *command.AddTodo) (model.Todo, error) {
 	newCtx, span := otel.Tracer("service-todo").Start(ctx, "Save")
 	defer span.End()
 	todo := model.NewTodo(addTodo.Name)
@@ -57,7 +56,7 @@ func (tr *TodoService) Save(ctx context.Context, addTodo *command.AddTodo) (mode
 	return result, errx
 }
 
-func (tr *TodoService) Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, *errorx.Error) {
+func (tr *TodoService) Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, error) {
 	newCtx, span := otel.Tracer("service-todo").Start(ctx, "Update")
 	defer span.End()
 	_, errx := tr.todoRepository.GetById(newCtx, updateTodo.Id)
@@ -75,7 +74,7 @@ func (tr *TodoService) Update(ctx context.Context, updateTodo *command.UpdateTod
 	return todo, errx
 }
 
-func (tr *TodoService) Delete(ctx context.Context, id uuid.UUID) *errorx.Error {
+func (tr *TodoService) Delete(ctx context.Context, id uuid.UUID) error {
 	newCtx, span := otel.Tracer("service-todo").Start(ctx, "Delete")
 	defer span.End()
 	_, errx := tr.todoRepository.GetById(newCtx, id)

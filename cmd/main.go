@@ -3,8 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/Tonioou/go-todo-list/internal/api"
+	"github.com/Tonioou/go-todo-list/internal/client"
 	"github.com/Tonioou/go-todo-list/internal/config"
+	"github.com/Tonioou/go-todo-list/internal/repository"
+	"github.com/Tonioou/go-todo-list/internal/service"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -17,14 +24,12 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {
 	config.NewLogger()
 
+	// otel related
 	exp, err := newExporter(context.Background())
 	if err != nil {
 		config.Logger.Fatal(err.Error())
@@ -42,6 +47,8 @@ func main() {
 	}()
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
+	// http server related
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
@@ -53,9 +60,16 @@ func main() {
 		config.Logger.Fatal(err.Error())
 	}()
 
-	todoApi := api.NewTodoApi()
+	// dependency management
+	pgClient := client.NewPgClient()
+	todoRepository := repository.NewTodoRepository(pgClient)
+	todoService := service.NewTodoService(todoRepository)
+	todoApi := api.NewTodoApi(todoService)
+
+	// register routes
 	todoApi.Register(e)
 
+	// metrics server
 	metrics := echo.New()
 	metrics.HideBanner = true
 	metrics.HidePort = true

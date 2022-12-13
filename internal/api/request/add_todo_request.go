@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func InitializeAddTodo(c echo.Context) (*command.AddTodo, *errorx.Error) {
+func InitializeAddTodo(c echo.Context) (*command.AddTodo, error) {
 	var addTodo command.AddTodo
 	if err := c.Bind(&addTodo); err != nil {
 		return &addTodo, errorx.Decorate(err, "failed to bind data")
