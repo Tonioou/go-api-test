@@ -1,10 +1,19 @@
 # TODO List
 
-That's a todo crud, where i'm exercising some things and trying others
-like using open telemetry for tracing, writing my own openapi3 file, and
-exercising golang architecture.  
+That's a simples CRUD of a Todo card. The main purpose is to exercise somethings and also learn others.
 
-## How to run
+## What you'll find here?
+* Go 
+* Docker
+* Rest API
+* Postgres
+* OpenTelemetry
+* Prometheus (soon..)
+* Grafana (soon..)
+* Kubernetes (soon..)
+* Kong API Gateway (soon..)
+
+## How to run in Docker
 
 You must have docker and docker compose installed on your machine
 
@@ -17,6 +26,11 @@ If you don't have make on your system then run from the root folder:
 `docker compose up -f build/docker-compose.yaml` to start the database and application
 
 and `docker compose down -f build/docker-compose.yaml` to stop.
+
+## How to run in K8S with Kind
+
+You'll also need to have docker installed on your machine.
+Further information soon. 
 
 ## Tips
 

@@ -6,11 +6,11 @@ import (
 )
 
 type UpdateTodo struct {
-	Id   uuid.UUID `param:"id"`
 	Name string    `json:"name"`
+	Id   uuid.UUID `param:"id"`
 }
 
-func (u *UpdateTodo) IsValid() *errorx.Error{
+func (u *UpdateTodo) IsValid() *errorx.Error {
 	if u.Id == uuid.Nil {
 		return errorx.IllegalArgument.New("invalid id")
 	}
