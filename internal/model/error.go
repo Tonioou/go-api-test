@@ -14,10 +14,9 @@ var (
 )
 
 type ErrorResponse struct {
-	Timestamp time.Time `json:"timestamp"`
-
-	StatusCode int    `json:"status_code"`
-	Message    string `json:"message"`
+	Timestamp  time.Time `json:"timestamp"`
+	Message    string    `json:"message"`
+	StatusCode int       `json:"status_code"`
 }
 
 type logFunc func(...interface{})

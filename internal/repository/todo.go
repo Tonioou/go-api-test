@@ -12,7 +12,6 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/joomcode/errorx"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
 )
 
 type TodoRepository struct {
@@ -40,8 +39,6 @@ func (tr *TodoRepository) GetById(ctx context.Context, id uuid.UUID) (model.Todo
 
 	row, errx := tr.PgClient.QueryRow(newCtx, query, id)
 	if errx != nil {
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
 		return model.Todo{}, errx
 	}
 	var sqlTime sql.NullTime
@@ -59,8 +56,6 @@ func (tr *TodoRepository) GetById(ctx context.Context, id uuid.UUID) (model.Todo
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Todo{}, model.NotFound.New("todo not found")
 		}
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
 		return model.Todo{}, errorx.Decorate(err, "failed to scan row")
 	}
 	return result, nil
@@ -80,11 +75,9 @@ func (tr *TodoRepository) Save(ctx context.Context, todo *model.Todo) (model.Tod
 		&todo.Active,
 	}
 
-	errx := tr.PgClient.Exec(newCtx, query, args...)
-	if errx != nil {
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
-		return model.Todo{}, errx
+	err := tr.PgClient.Exec(newCtx, query, args...)
+	if err != nil {
+		return model.Todo{}, err
 	}
 	return tr.GetById(ctx, id)
 }
@@ -99,11 +92,9 @@ func (tr *TodoRepository) Update(ctx context.Context, updateTodo *command.Update
 		&updateTodo.Id,
 	}
 
-	errx := tr.PgClient.Exec(newCtx, query, args...)
-	if errx != nil {
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
-		return model.Todo{}, errx
+	err := tr.PgClient.Exec(newCtx, query, args...)
+	if err != nil {
+		return model.Todo{}, err
 	}
 	return tr.GetById(ctx, updateTodo.Id)
 }
@@ -116,11 +107,5 @@ func (tr *TodoRepository) Delete(ctx context.Context, id uuid.UUID) error {
 		&id,
 	}
 
-	errx := tr.PgClient.Exec(newCtx, query, args...)
-	if errx != nil {
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
-		return errx
-	}
-	return nil
+	return tr.PgClient.Exec(newCtx, query, args...)
 }
