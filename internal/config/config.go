@@ -14,10 +14,10 @@ type Configs struct {
 	}
 	LogLevel    string
 	ServiceName string
-	JaegerURL   string
 	Otel        struct {
 		GrpcEndpoint string
 	}
+	JaegerURL string
 }
 
 var configRunOnce sync.Once
