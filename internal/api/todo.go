@@ -17,9 +17,9 @@ type TodoApi struct {
 	TodoService service.Todo
 }
 
-func NewTodoApi() *TodoApi {
+func NewTodoApi(todoService service.Todo) *TodoApi {
 	return &TodoApi{
-		TodoService: service.NewTodoService(),
+		TodoService: todoService,
 	}
 }
 
@@ -68,18 +68,18 @@ func (ta *TodoApi) Save(c echo.Context) error {
 
 	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Save", opts...)
 	defer span.End()
-	addTodo, errx := request.InitializeAddTodo(c)
-	if errx != nil {
-		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
+	addTodo, err := request.InitializeAddTodo(c)
+	if err != nil {
+		errorResponse := model.NewErrorResponse(err, config.Logger.Error)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	result, errx := ta.TodoService.Save(newCtx, addTodo)
-	if errx != nil {
-		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
+	result, err := ta.TodoService.Save(newCtx, addTodo)
+	if err != nil {
+		errorResponse := model.NewErrorResponse(err, config.Logger.Error)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 
 	}
@@ -95,18 +95,18 @@ func (ta *TodoApi) Update(c echo.Context) error {
 	ctx := c.Request().Context()
 	newCtx, span := otel.Tracer("api-todo").Start(ctx, "Update", opts...)
 	defer span.End()
-	updateTodo, errx := request.InitializeUpdateTodo(c)
-	if errx != nil {
-		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
+	updateTodo, err := request.InitializeUpdateTodo(c)
+	if err != nil {
+		errorResponse := model.NewErrorResponse(err, config.Logger.Error)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	result, errx := ta.TodoService.Update(newCtx, updateTodo)
-	if errx != nil {
-		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
-		span.RecordError(errx)
-		span.SetStatus(codes.Error, errx.Error())
+	result, err := ta.TodoService.Update(newCtx, updateTodo)
+	if err != nil {
+		errorResponse := model.NewErrorResponse(err, config.Logger.Error)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 	return c.JSON(204, result)

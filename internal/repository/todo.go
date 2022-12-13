@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
 	"github.com/Tonioou/go-todo-list/internal/client"
 	"github.com/Tonioou/go-todo-list/internal/model"
 	"github.com/Tonioou/go-todo-list/internal/model/command"
@@ -18,13 +19,13 @@ type TodoRepository struct {
 	PgClient *client.PgClient
 }
 
-func NewTodoRepository() *TodoRepository {
+func NewTodoRepository(pgClient *client.PgClient) *TodoRepository {
 	return &TodoRepository{
-		PgClient: client.GetPgClient(),
+		PgClient: pgClient,
 	}
 }
 
-func (tr *TodoRepository) GetById(ctx context.Context, id uuid.UUID) (model.Todo, *errorx.Error) {
+func (tr *TodoRepository) GetById(ctx context.Context, id uuid.UUID) (model.Todo, error) {
 	newCtx, span := otel.Tracer("repository-todo").Start(ctx, "GetById")
 	defer span.End()
 	result := model.Todo{}
@@ -65,7 +66,7 @@ func (tr *TodoRepository) GetById(ctx context.Context, id uuid.UUID) (model.Todo
 	return result, nil
 }
 
-func (tr *TodoRepository) Save(ctx context.Context, todo *model.Todo) (model.Todo, *errorx.Error) {
+func (tr *TodoRepository) Save(ctx context.Context, todo *model.Todo) (model.Todo, error) {
 	newCtx, span := otel.Tracer("repository-todo").Start(ctx, "Save")
 	defer span.End()
 	query := "INSERT INTO todo (id, name, created_at, finished, active) VALUES ($1,$2,$3,$4,$5);"
@@ -88,7 +89,7 @@ func (tr *TodoRepository) Save(ctx context.Context, todo *model.Todo) (model.Tod
 	return tr.GetById(ctx, id)
 }
 
-func (tr *TodoRepository) Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, *errorx.Error) {
+func (tr *TodoRepository) Update(ctx context.Context, updateTodo *command.UpdateTodo) (model.Todo, error) {
 	newCtx, span := otel.Tracer("repository-todo").Start(ctx, "Update")
 	defer span.End()
 	query := "UPDATE todo SET name=$1 where id=$2;"
@@ -107,7 +108,7 @@ func (tr *TodoRepository) Update(ctx context.Context, updateTodo *command.Update
 	return tr.GetById(ctx, updateTodo.Id)
 }
 
-func (tr *TodoRepository) Delete(ctx context.Context, id uuid.UUID) *errorx.Error {
+func (tr *TodoRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	newCtx, span := otel.Tracer("repository-todo").Start(ctx, "Delete")
 	defer span.End()
 	query := "DELETE FROM  todo  where id=$1;"

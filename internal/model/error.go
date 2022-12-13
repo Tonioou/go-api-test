@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -21,29 +22,36 @@ type ErrorResponse struct {
 
 type logFunc func(...interface{})
 
-func NewErrorResponse(errx *errorx.Error, log logFunc) *ErrorResponse {
-	log(errx.Error())
+func NewErrorResponse(err error, log logFunc) *ErrorResponse {
+	log(err.Error())
 	errorResponse := &ErrorResponse{}
-	errorResponse.fillProperties(errx)
+	errorResponse.fillProperties(err)
 	return errorResponse
 }
 
-func (er *ErrorResponse) fillProperties(errx *errorx.Error) {
+func (er *ErrorResponse) fillProperties(err error) {
 	statusCode := 0
-	switch {
-	case errx.IsOfType(NotFound):
-		statusCode = http.StatusNotFound
-	case errx.IsOfType(errorx.InternalError):
-		statusCode = http.StatusInternalServerError
-	case errx.IsOfType(errorx.IllegalArgument):
-		statusCode = http.StatusBadRequest
-	case errx.IsOfType(errorx.NotImplemented):
-		statusCode = http.StatusNotImplemented
-	default:
-		statusCode = http.StatusInternalServerError
-	}
+	var errx *errorx.Error
+	if isErrorx := errors.As(err, &errx); isErrorx {
+		switch {
+		case errx.IsOfType(NotFound):
+			statusCode = http.StatusNotFound
+		case errx.IsOfType(errorx.InternalError):
+			statusCode = http.StatusInternalServerError
+		case errx.IsOfType(errorx.IllegalArgument):
+			statusCode = http.StatusBadRequest
+		case errx.IsOfType(errorx.NotImplemented):
+			statusCode = http.StatusNotImplemented
+		default:
+			statusCode = http.StatusInternalServerError
+		}
 
-	er.StatusCode = statusCode
+		er.StatusCode = statusCode
+
+	} else {
+		er.StatusCode = http.StatusInternalServerError
+	}
 	er.Message = errx.Error()
 	er.Timestamp = time.Now()
+
 }

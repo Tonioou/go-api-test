@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"sync"
 
 	"github.com/Tonioou/go-todo-list/internal/config"
 	"github.com/jackc/pgx/v4"
@@ -15,52 +14,46 @@ type PgClient struct {
 	conn *pgxpool.Pool
 }
 
-var pgRunOnce sync.Once
-var pgClient *PgClient
+func NewPgClient() *PgClient {
+	pgClient := &PgClient{}
 
-func newPgClient() *errorx.Error {
-	conn, err := pgxpool.Connect(context.Background(), config.GetConfig().Postgres.Url)
+	conn, err := pgClient.connect()
 	if err != nil {
 		errx := errorx.Decorate(err, "failed to connect to Database")
-		return errx
+		logrus.Fatal(errx)
 	}
 	pgClient.conn = conn
-	return nil
-}
-
-func GetPgClient() *PgClient {
-	pgRunOnce.Do(func() {
-		pgClient = &PgClient{}
-		err := newPgClient()
-		if err != nil {
-			logrus.Error(err)
-		}
-	})
 	return pgClient
 }
 
-func (pg *PgClient) Ping(ctx context.Context) *errorx.Error {
-	if pg.conn == nil {
-		err := newPgClient()
-		if err != nil {
-			return err
-		}
-	}
-	query := "SELECT 1;"
+func (pg *PgClient) Ping(ctx context.Context) error {
+	var (
+		errx        *errorx.Error
+		query       = "SELECT 1;"
+		queryResult = 0
+	)
 
-	queryResult := 0
 	err := pg.conn.QueryRow(ctx, query).Scan(&queryResult)
 	if err != nil {
-		logrus.Error(errorx.Decorate(err, "failed to query database"))
-		err := newPgClient()
-		if err != nil {
-			return err
-		}
+		errx = errorx.Decorate(err, "failed to query database")
+		logrus.Error(errx)
 	}
-	return nil
+
+	conn, err := pg.connect()
+	if err == nil {
+		pg.conn = conn
+		return nil
+	}
+
+	logrus.Error(errorx.Decorate(err, "failed to reconnect to db"))
+	return errx
 }
 
-func (pg *PgClient) getConnection(ctx context.Context) (*pgxpool.Pool, *errorx.Error) {
+func (pg *PgClient) connect() (*pgxpool.Pool, error) {
+	return pgxpool.Connect(context.Background(), config.GetConfig().Postgres.Url)
+}
+
+func (pg *PgClient) getConnection(ctx context.Context) (*pgxpool.Pool, error) {
 	err := pg.Ping(ctx)
 	if err != nil {
 		errx := errorx.InternalError.New("failed to query database")
@@ -69,7 +62,7 @@ func (pg *PgClient) getConnection(ctx context.Context) (*pgxpool.Pool, *errorx.E
 	return pg.conn, nil
 }
 
-func (pg *PgClient) Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, *errorx.Error) {
+func (pg *PgClient) Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, error) {
 	connection, errx := pg.getConnection(ctx)
 	if errx != nil {
 		return nil, errx
@@ -81,7 +74,7 @@ func (pg *PgClient) Query(ctx context.Context, query string, args ...interface{}
 	return rows, nil
 }
 
-func (pg *PgClient) Exec(ctx context.Context, query string, args ...interface{}) *errorx.Error {
+func (pg *PgClient) Exec(ctx context.Context, query string, args ...interface{}) error {
 	connection, errx := pg.getConnection(ctx)
 	if errx != nil {
 		return errx
@@ -93,7 +86,7 @@ func (pg *PgClient) Exec(ctx context.Context, query string, args ...interface{})
 	return nil
 }
 
-func (pg *PgClient) QueryRow(ctx context.Context, query string, args ...interface{}) (pgx.Row, *errorx.Error) {
+func (pg *PgClient) QueryRow(ctx context.Context, query string, args ...interface{}) (pgx.Row, error) {
 	connection, errx := pg.getConnection(ctx)
 	if errx != nil {
 		return nil, errx
