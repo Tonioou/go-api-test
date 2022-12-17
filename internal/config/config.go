@@ -28,7 +28,7 @@ func GetConfig() *Configs {
 	configRunOnce.Do(func() {
 		config.SetDefault("service.name", "go-todo-list")
 		config.SetDefault("log.level", "info")
-		config.SetDefault("postgres.host", "localhost")
+		config.SetDefault("postgres.host", "todo-postgres")
 		config.SetDefault("postgres.port", 5432)
 		config.SetDefault("postgres.username", "todo_app")
 		config.SetDefault("postgres.password", "todo_app")
