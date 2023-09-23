@@ -3,4 +3,4 @@
 .idea/
 .env
 
-internal/config/config-local.yaml
+internal/**/config-local.yaml
