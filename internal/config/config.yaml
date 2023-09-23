@@ -1,0 +1,16 @@
+service:
+  name: go-todo-list
+  log:
+    level: info
+postgres:
+  rw:
+    host: todo-postgres-rw
+    port: 5432
+    username: todo_app
+    password: todo_app
+  database:
+    name: todo_list
+otel:
+  exporter:
+    grpc:
+      endpoint: localhost:4317

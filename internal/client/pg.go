@@ -4,25 +4,22 @@ import (
 	"context"
 
 	"github.com/Tonioou/go-todo-list/internal/config"
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joomcode/errorx"
 	"github.com/sirupsen/logrus"
 )
 
 type PgClient struct {
 	conn *pgxpool.Pool
+	cfg  *config.Configs
 }
 
-func NewPgClient() *PgClient {
-	pgClient := &PgClient{}
-
-	conn, err := pgClient.connect()
-	if err != nil {
-		errx := errorx.Decorate(err, "failed to connect to Database")
-		logrus.Fatal(errx)
+func NewPgClient(cfg *config.Configs) *PgClient {
+	pgClient := &PgClient{
+		cfg: cfg,
 	}
-	pgClient.conn = conn
+
 	return pgClient
 }
 
@@ -39,18 +36,8 @@ func (pg *PgClient) Ping(ctx context.Context) error {
 		logrus.Error(errx)
 	}
 
-	conn, err := pg.connect()
-	if err == nil {
-		pg.conn = conn
-		return nil
-	}
-
 	logrus.Error(errorx.Decorate(err, "failed to reconnect to db"))
 	return errx
-}
-
-func (pg *PgClient) connect() (*pgxpool.Pool, error) {
-	return pgxpool.Connect(context.Background(), config.GetConfig().Postgres.Url)
 }
 
 func (pg *PgClient) getConnection(ctx context.Context) (*pgxpool.Pool, error) {

@@ -22,7 +22,7 @@ func NewLogger() {
 			},
 		)
 		logrus.SetOutput(os.Stdout)
-		level, err := logrus.ParseLevel(GetConfig().LogLevel)
+		level, err := logrus.ParseLevel("info")
 		if err != nil {
 			level = logrus.InfoLevel
 		}
