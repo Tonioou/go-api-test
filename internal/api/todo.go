@@ -6,7 +6,6 @@ import (
 	"github.com/Tonioou/go-todo-list/internal/model"
 	"github.com/Tonioou/go-todo-list/internal/service"
 	"github.com/google/uuid"
-	"github.com/joomcode/errorx"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -33,14 +32,13 @@ func (ta *TodoApi) Register(e *echo.Echo) {
 func (ta *TodoApi) GetById(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	value := c.Param("id")
-	id, err := uuid.Parse(value)
+	getTodo, err := request.InitializeGetTodo(c)
 	if err != nil {
-		errorResponse := model.NewErrorResponse(errorx.Decorate(err, "failed to parse id"), config.Logger.Error)
+		errorResponse := model.NewErrorResponse(err, config.Logger.Error)
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 
-	result, errx := ta.TodoService.GetById(ctx, id)
+	result, errx := ta.TodoService.GetById(ctx, uuid.MustParse(getTodo.ID))
 
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
@@ -78,21 +76,20 @@ func (ta *TodoApi) Update(c echo.Context) error {
 		errorResponse := model.NewErrorResponse(err, config.Logger.Error)
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	return c.JSON(http.StatusNoContent, result)
+	return c.JSON(http.StatusOK, result)
 }
 
 func (ta *TodoApi) Delete(c echo.Context) error {
 	ctx := c.Request().Context()
-	value := c.Param("id")
-	id, err := uuid.Parse(value)
+	deleteTodo, err := request.InitializeDeleteTodo(c)
 	if err != nil {
-		errorResponse := model.NewErrorResponse(errorx.Decorate(err, "failed to parse id"), config.Logger.Error)
+		errorResponse := model.NewErrorResponse(err, config.Logger.Error)
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	errx := ta.TodoService.Delete(ctx, id)
+	errx := ta.TodoService.Delete(ctx, uuid.MustParse(deleteTodo.ID))
 	if errx != nil {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	return c.String(http.StatusNoContent, "delete")
+	return c.NoContent(http.StatusNoContent)
 }
