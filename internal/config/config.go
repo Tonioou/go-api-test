@@ -29,6 +29,7 @@ type (
 			Log  struct {
 				Level string `yaml:"level"`
 			} `yaml:"log"`
+			Env string `yaml:"env"`
 		} `yaml:"service"`
 		Otel struct {
 			Exporter struct {

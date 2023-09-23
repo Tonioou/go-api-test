@@ -2,6 +2,7 @@ service:
   name: go-todo-list
   log:
     level: info
+  env: local
 postgres:
   rw:
     host: todo-postgres-rw
