@@ -57,21 +57,8 @@ func (pg *PgClient) Ping(ctx context.Context) error {
 	return errx
 }
 
-func (pg *PgClient) getConnection(ctx context.Context) (*pgxpool.Pool, error) {
-	err := pg.Ping(ctx)
-	if err != nil {
-		errx := errorx.InternalError.New("failed to query database")
-		return nil, errx
-	}
-	return pg.conn, nil
-}
-
 func (pg *PgClient) Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, error) {
-	connection, errx := pg.getConnection(ctx)
-	if errx != nil {
-		return nil, errx
-	}
-	rows, err := connection.Query(ctx, query, args)
+	rows, err := pg.conn.Query(ctx, query, args)
 	if err != nil {
 		return nil, errorx.Decorate(err, "failed to query database")
 	}
@@ -79,11 +66,7 @@ func (pg *PgClient) Query(ctx context.Context, query string, args ...interface{}
 }
 
 func (pg *PgClient) Exec(ctx context.Context, query string, args ...interface{}) error {
-	connection, errx := pg.getConnection(ctx)
-	if errx != nil {
-		return errx
-	}
-	_, err := connection.Exec(ctx, query, args...)
+	_, err := pg.conn.Exec(ctx, query, args...)
 	if err != nil {
 		return errorx.Decorate(err, "failed to insert on database")
 	}
@@ -91,10 +74,6 @@ func (pg *PgClient) Exec(ctx context.Context, query string, args ...interface{})
 }
 
 func (pg *PgClient) QueryRow(ctx context.Context, query string, args ...interface{}) (pgx.Row, error) {
-	connection, errx := pg.getConnection(ctx)
-	if errx != nil {
-		return nil, errx
-	}
-	rows := connection.QueryRow(ctx, query, args...)
+	rows := pg.conn.QueryRow(ctx, query, args...)
 	return rows, nil
 }
