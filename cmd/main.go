@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -26,40 +25,11 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 	echoTracer "gopkg.in/DataDog/dd-trace-go.v1/contrib/labstack/echo.v4"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
-	"gopkg.in/DataDog/dd-trace-go.v1/profiler"
 )
 
 func main() {
 	config.NewLogger()
 
-	tracer.Start(
-		tracer.WithService("go-todo-list"),
-		tracer.WithEnv("local"),
-		tracer.WithAgentAddr("datadog:8126"),
-	)
-	defer tracer.Stop()
-
-	err := profiler.Start(
-		profiler.WithService("go-todo-list"),
-		profiler.WithEnv("local"),
-		profiler.WithAgentAddr("datadog:8126"),
-		profiler.WithProfileTypes(
-			profiler.CPUProfile,
-			profiler.HeapProfile,
-
-			// The profiles below are disabled by
-			// default to keep overhead low, but
-			// can be enabled as needed.
-			// profiler.BlockProfile,
-			// profiler.MutexProfile,
-			// profiler.GoroutineProfile,
-		),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer profiler.Stop()
 	// otel related
 	exp, err := newExporter(context.Background())
 	if err != nil {
