@@ -2,6 +2,8 @@ package client
 
 import (
 	"context"
+	"fmt"
+	"log"
 
 	"github.com/Tonioou/go-todo-list/internal/config"
 	"github.com/jackc/pgx/v5"
@@ -11,16 +13,31 @@ import (
 )
 
 type PgClient struct {
-	conn *pgxpool.Pool
-	cfg  *config.Configs
+	conn       *pgxpool.Pool
+	connString string
 }
 
-func NewPgClient(cfg *config.Configs) *PgClient {
+func NewPgClient(ctx context.Context, cfg *config.Replica) *PgClient {
 	pgClient := &PgClient{
-		cfg: cfg,
+		connString: createConnString(cfg),
+	}
+	connPool, err := pgxpool.New(ctx, pgClient.connString)
+	if err != nil {
+		log.Fatal(err)
 	}
 
+	pgClient.conn = connPool
 	return pgClient
+}
+
+func createConnString(cfg *config.Replica) string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+		cfg.Username,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.Database.Name,
+	)
 }
 
 func (pg *PgClient) Ping(ctx context.Context) error {

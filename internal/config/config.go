@@ -7,32 +7,38 @@ import (
 	"strings"
 )
 
-type Replica struct {
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-}
-type Configs struct {
-	Postgres struct {
-		RW Replica `yaml:"rw"`
-		RO Replica `yaml:"ro"`
-	} `yaml:"postgres"`
-	LogLevel string
-	Service  struct {
+type (
+	Database struct {
 		Name string `yaml:"name"`
-		Log  struct {
-			Level string `yaml:"level"`
-		} `yaml:"log"`
-	} `yaml:"service"`
-	Otel struct {
-		Exporter struct {
-			GRPC struct {
-				Endpoint string `yaml:"endpoint"`
-			} `yaml:"grpc"`
-		} `yaml:"exporter"`
-	} `yaml:"otel"`
-}
+	}
+	Replica struct {
+		Host     string   `yaml:"host"`
+		Port     string   `yaml:"port"`
+		Username string   `yaml:"username"`
+		Password string   `yaml:"password"`
+		Database Database `yaml:"database"`
+	}
+	Configs struct {
+		Postgres struct {
+			RW Replica `yaml:"rw"`
+			RO Replica `yaml:"ro"`
+		} `yaml:"postgres"`
+		LogLevel string
+		Service  struct {
+			Name string `yaml:"name"`
+			Log  struct {
+				Level string `yaml:"level"`
+			} `yaml:"log"`
+		} `yaml:"service"`
+		Otel struct {
+			Exporter struct {
+				GRPC struct {
+					Endpoint string `yaml:"endpoint"`
+				} `yaml:"grpc"`
+			} `yaml:"exporter"`
+		} `yaml:"otel"`
+	}
+)
 
 func NewConfig() *Configs {
 	var config *Configs

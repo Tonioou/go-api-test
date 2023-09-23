@@ -8,8 +8,8 @@ postgres:
     port: 5432
     username: todo_app
     password: todo_app
-  database:
-    name: todo_list
+    database:
+      name: todo_list
 otel:
   exporter:
     grpc:
