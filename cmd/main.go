@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/Tonioou/go-todo-list/internal/model"
+	"github.com/go-playground/validator/v10"
 	"os"
 	"os/signal"
 	"syscall"
@@ -51,11 +53,13 @@ func main() {
 	// http server related
 	e := echo.New()
 
+	v := validator.New(validator.WithRequiredStructEnabled())
+
 	e.Use(echoTracer.Middleware(echoTracer.WithServiceName("go-todo-list")))
 	e.HideBanner = true
 	e.HidePort = true
+	e.Validator = model.NewCustomValidator(v)
 	e.Use(middleware.Gzip())
-	// e.Use(middleware.Logger())
 	e.Use(otelecho.Middleware("go-todo-list"))
 	go func() {
 		err := e.Start(":8080")

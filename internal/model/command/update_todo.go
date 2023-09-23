@@ -6,8 +6,8 @@ import (
 )
 
 type UpdateTodo struct {
-	Name string    `json:"name"`
-	Id   uuid.UUID `param:"id"`
+	Name string    `json:"name" validate:"required"`
+	Id   uuid.UUID `param:"id" validate:"required"`
 }
 
 func (u *UpdateTodo) IsValid() *errorx.Error {

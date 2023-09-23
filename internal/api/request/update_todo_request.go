@@ -12,7 +12,7 @@ func InitializeUpdateTodo(c echo.Context) (*command.UpdateTodo, error) {
 		return &updateTodo, errorx.Decorate(err, "failed to bind data")
 	}
 
-	if err := updateTodo.IsValid(); err != nil {
+	if err := c.Validate(updateTodo); err != nil {
 		return &updateTodo, err
 	}
 	return &updateTodo, nil

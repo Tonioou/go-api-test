@@ -12,7 +12,7 @@ func InitializeAddTodo(c echo.Context) (*command.AddTodo, error) {
 		return &addTodo, errorx.Decorate(err, "failed to bind data")
 	}
 
-	if err := addTodo.IsValid(); err != nil {
+	if err := c.Validate(addTodo); err != nil {
 		return &addTodo, err
 	}
 	return &addTodo, nil
