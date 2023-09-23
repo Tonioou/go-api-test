@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/joomcode/errorx"
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type TodoApi struct {
@@ -20,8 +21,8 @@ func NewTodoApi(todoService service.Todo) *TodoApi {
 	}
 }
 
-func (ta *TodoApi) Register(echo *echo.Echo) {
-	v1 := echo.Group("/v1")
+func (ta *TodoApi) Register(e *echo.Echo) {
+	v1 := e.Group("/v1")
 
 	v1.GET("/todo/:id", ta.GetById)
 	v1.POST("/todo", ta.Save)
@@ -45,7 +46,7 @@ func (ta *TodoApi) GetById(c echo.Context) error {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	return c.JSON(200, result)
+	return c.JSON(http.StatusOK, result)
 }
 
 func (ta *TodoApi) Save(c echo.Context) error {
@@ -62,7 +63,7 @@ func (ta *TodoApi) Save(c echo.Context) error {
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 
-	return c.JSON(201, result)
+	return c.JSON(http.StatusCreated, result)
 }
 
 func (ta *TodoApi) Update(c echo.Context) error {
@@ -77,7 +78,7 @@ func (ta *TodoApi) Update(c echo.Context) error {
 		errorResponse := model.NewErrorResponse(err, config.Logger.Error)
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	return c.JSON(204, result)
+	return c.JSON(http.StatusNoContent, result)
 }
 
 func (ta *TodoApi) Delete(c echo.Context) error {
@@ -93,5 +94,5 @@ func (ta *TodoApi) Delete(c echo.Context) error {
 		errorResponse := model.NewErrorResponse(errx, config.Logger.Error)
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	return c.String(204, "delete")
+	return c.String(http.StatusNoContent, "delete")
 }
