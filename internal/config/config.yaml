@@ -5,7 +5,7 @@ service:
   env: local
 postgres:
   rw:
-    host: todo-postgres-rw
+    host: localhost
     port: 5432
     username: todo_app
     password: todo_app
@@ -14,4 +14,4 @@ postgres:
 otel:
   exporter:
     grpc:
-      endpoint: "todo-otel-collector:4317"
+      endpoint: localhost:4317
