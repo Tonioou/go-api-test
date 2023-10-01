@@ -2,9 +2,12 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/Tonioou/go-todo-list/internal/model"
+	logger "github.com/Tonioou/go-todo-list/pkg"
 	"github.com/go-playground/validator/v10"
+	slogecho "github.com/samber/slog-echo"
 	"os"
 	"os/signal"
 	"syscall"
@@ -31,12 +34,12 @@ import (
 func main() {
 	ctx := context.Background()
 	cfg := config.NewConfig()
-	config.NewLogger()
 
 	// open telemetry
 	exp, err := newExporter(ctx, cfg)
+	err = errors.New("err")
 	if err != nil {
-		config.Logger.Fatal(err.Error())
+		logger.Fatal("failed to create exporter")
 	}
 	tp := trace.NewTracerProvider(
 		trace.WithBatcher(exp),
@@ -46,7 +49,7 @@ func main() {
 
 	defer func() {
 		if err := tp.Shutdown(context.Background()); err != nil {
-			config.Logger.Fatal(err.Error())
+			logger.Fatal("failed to create exporter", err)
 		}
 	}()
 	otel.SetTracerProvider(tp)
@@ -65,11 +68,15 @@ func main() {
 	e.Validator = model.NewCustomValidator(v)
 	e.Use(middleware.Gzip())
 	e.Use(otelecho.Middleware(cfg.Service.Name))
+	e.Use(slogecho.NewWithFilters(
+		logger.Logger(),
+		slogecho.IgnoreStatus(401, 404),
+	))
 	e.Use(echoprometheus.NewMiddleware(cfg.Service.Name))
 
 	go func() {
 		err := e.Start(":8080")
-		config.Logger.Fatal(err.Error())
+		logger.Fatal("failed to create exporter", err)
 	}()
 
 	// client
@@ -95,7 +102,7 @@ func main() {
 
 	go func() {
 		err := metrics.Start(":8081")
-		config.Logger.Fatal(err.Error())
+		logger.Fatal("failed to create exporter", err)
 	}()
 
 	// graceful shutdown

@@ -19,10 +19,7 @@ type ErrorResponse struct {
 	StatusCode int       `json:"status_code"`
 }
 
-type logFunc func(...interface{})
-
-func NewErrorResponse(err error, log logFunc) *ErrorResponse {
-	log(err.Error())
+func NewErrorResponse(err error) *ErrorResponse {
 	errorResponse := &ErrorResponse{}
 	errorResponse.fillProperties(err)
 	return errorResponse
@@ -52,5 +49,4 @@ func (er *ErrorResponse) fillProperties(err error) {
 	}
 	er.Message = errx.Error()
 	er.Timestamp = time.Now()
-
 }
