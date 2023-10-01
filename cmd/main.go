@@ -28,7 +28,7 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
 )
 
 func main() {
@@ -133,13 +133,10 @@ func newExporter(ctx context.Context, cfg *config.Configs) (trace.SpanExporter, 
 func newResource(cfg *config.Configs) *resource.Resource {
 	r, _ := resource.Merge(
 		resource.Default(),
-		resource.NewWithAttributes(
-			semconv.SchemaURL,
+		resource.NewSchemaless(
 			semconv.ServiceNameKey.String(cfg.Service.Name),
 			semconv.ServiceVersionKey.String("v0.1.0"),
-			attribute.String("environment", cfg.Service.Env),
-			attribute.String("batata", "po"),
-		),
+			attribute.String("environment", cfg.Service.Env)),
 	)
 	return r
 }
