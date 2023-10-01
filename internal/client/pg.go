@@ -9,7 +9,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joomcode/errorx"
-	"github.com/sirupsen/logrus"
 )
 
 type PgClient struct {
@@ -53,10 +52,7 @@ func (pg *PgClient) Ping(ctx context.Context) error {
 	err := pg.pgxConn.QueryRow(ctx, query).Scan(&queryResult)
 	if err != nil {
 		errx = errorx.Decorate(err, "failed to query database")
-		logrus.Error(errx)
 	}
-
-	logrus.Error(errorx.Decorate(err, "failed to reconnect to db"))
 	return errx
 }
 
