@@ -3,9 +3,9 @@ package client
 import (
 	"context"
 	"fmt"
-	"log"
-
 	"github.com/Tonioou/go-todo-list/internal/config"
+	logger "github.com/Tonioou/go-todo-list/pkg"
+	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joomcode/errorx"
@@ -13,21 +13,24 @@ import (
 )
 
 type PgClient struct {
-	conn       *pgxpool.Pool
-	connString string
+	pgxCfg  *pgxpool.Config
+	pgxConn *pgxpool.Pool
 }
 
 func NewPgClient(ctx context.Context, cfg *config.Replica) *PgClient {
-	pgClient := &PgClient{
-		connString: createConnString(cfg),
-	}
-	connPool, err := pgxpool.New(ctx, pgClient.connString)
+	pgxCfg, err := pgxpool.ParseConfig(createConnString(cfg))
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("cannot create pg config", err)
 	}
-
-	pgClient.conn = connPool
-	return pgClient
+	pgxCfg.ConnConfig.Tracer = otelpgx.NewTracer()
+	connPool, err := pgxpool.NewWithConfig(ctx, pgxCfg)
+	if err != nil {
+		logger.Fatal("cannot connect to pg", err)
+	}
+	return &PgClient{
+		pgxCfg:  pgxCfg,
+		pgxConn: connPool,
+	}
 }
 
 func createConnString(cfg *config.Replica) string {
@@ -47,7 +50,7 @@ func (pg *PgClient) Ping(ctx context.Context) error {
 		queryResult = 0
 	)
 
-	err := pg.conn.QueryRow(ctx, query).Scan(&queryResult)
+	err := pg.pgxConn.QueryRow(ctx, query).Scan(&queryResult)
 	if err != nil {
 		errx = errorx.Decorate(err, "failed to query database")
 		logrus.Error(errx)
@@ -58,7 +61,7 @@ func (pg *PgClient) Ping(ctx context.Context) error {
 }
 
 func (pg *PgClient) Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, error) {
-	rows, err := pg.conn.Query(ctx, query, args)
+	rows, err := pg.pgxConn.Query(ctx, query, args)
 	if err != nil {
 		return nil, errorx.Decorate(err, "failed to query database")
 	}
@@ -66,7 +69,7 @@ func (pg *PgClient) Query(ctx context.Context, query string, args ...interface{}
 }
 
 func (pg *PgClient) Exec(ctx context.Context, query string, args ...interface{}) error {
-	_, err := pg.conn.Exec(ctx, query, args...)
+	_, err := pg.pgxConn.Exec(ctx, query, args...)
 	if err != nil {
 		return errorx.Decorate(err, "failed to insert on database")
 	}
@@ -74,6 +77,6 @@ func (pg *PgClient) Exec(ctx context.Context, query string, args ...interface{})
 }
 
 func (pg *PgClient) QueryRow(ctx context.Context, query string, args ...interface{}) (pgx.Row, error) {
-	rows := pg.conn.QueryRow(ctx, query, args...)
+	rows := pg.pgxConn.QueryRow(ctx, query, args...)
 	return rows, nil
 }

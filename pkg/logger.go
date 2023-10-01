@@ -2,10 +2,10 @@ package logger
 
 import (
 	"context"
-	"errors"
 	slogzap "github.com/samber/slog-zap"
 	"go.uber.org/zap"
 	"log/slog"
+	"os"
 )
 
 var (
@@ -54,10 +54,10 @@ func ErrorContext(ctx context.Context, msg string, args ...any) {
 
 func Fatal(msg string, args ...any) {
 	logger.Error(msg, args)
-	panic(errors.New(msg))
+	os.Exit(1)
 }
 
 func FatalContext(ctx context.Context, msg string, args ...any) {
 	logger.ErrorContext(ctx, msg, args)
-	panic(errors.New(msg))
+	os.Exit(1)
 }
