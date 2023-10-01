@@ -1,23 +1,23 @@
 version: "3.9"
 services:
-#    todo-app:
-#        container_name: todo-list
-#        build:
-#            context: ../
-#            dockerfile: build/Dockerfile
-#        ports:
-#            - "8080:8080"
-#            - "8081:8081"
-#        networks:
-#            - todo
-#        depends_on:
-#            - todo-postgres-rw
-#        environment:
-#            - POSTGRES_PASSWORD=todo_app
-#            - POSTGRES_USERNAME=todo_app
-#            - POSTGRES_HOST=todo-postgres
-#            - OTEL_EXPORTER_GRPC_ENDPOINT=todo-otel-collector:4317
-#        restart: always
+    todo-app:
+        container_name: todo-list
+        build:
+            context: ../
+            dockerfile: build/Dockerfile
+        ports:
+            - "8080:8080"
+            - "8081:8081"
+        networks:
+            - todo
+        depends_on:
+            - todo-postgres-rw
+        environment:
+            - POSTGRES_PASSWORD=todo_app
+            - POSTGRES_USERNAME=todo_app
+            - POSTGRES_RW_HOST=todo-postgres-rw
+            - OTEL_EXPORTER_GRPC_ENDPOINT=todo-otel-collector:4317
+        restart: always
     todo-postgres-rw:
         container_name: todo-postgres
         build:
