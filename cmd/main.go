@@ -138,6 +138,7 @@ func newResource(cfg *config.Configs) *resource.Resource {
 			semconv.ServiceNameKey.String(cfg.Service.Name),
 			semconv.ServiceVersionKey.String("v0.1.0"),
 			attribute.String("environment", cfg.Service.Env),
+			attribute.String("batata", "po"),
 		),
 	)
 	return r

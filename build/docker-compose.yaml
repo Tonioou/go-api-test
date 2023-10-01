@@ -5,23 +5,19 @@ services:
         build:
             context: ../
             dockerfile: build/Dockerfile
-        image: todo-list:latest
         ports:
             - "8080:8080"
             - "8081:8081"
         networks:
             - todo
         depends_on:
-            - todo-postgres
+            - todo-postgres-rw
         environment:
             - POSTGRES_PASSWORD=todo_app
             - POSTGRES_USERNAME=todo_app
             - POSTGRES_HOST=todo-postgres
-            - OTEL_EXPORTER_GRPC_ENDPOINT=todo-otel-collector
-            - DD_AGENT_HOST=datadog
-            - DD_API_KEY=${DD_API_KEY}
         restart: always
-    todo-postgres:
+    todo-postgres-rw:
         container_name: todo-postgres
         build:
             context: ./pg
@@ -32,26 +28,6 @@ services:
             - todo
         environment:
             - POSTGRES_PASSWORD=postgres
-    datadog:
-        container_name: datadog
-        pid: host
-        image: datadog/agent
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:ro
-            - /proc/:/host/proc/:ro
-            - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
-            - /var/lib/docker/containers:/var/lib/docker/containers:ro
-        environment:
-            - DD_API_KEY=${DD_API_KEY}
-            - DD_SITE=datadoghq.com
-            - DD_LOGS_ENABLED=true
-            - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
-            - DD_APM_ENABLED=true
-            - DD_APM_NON_LOCAL_TRAFFIC=true
-        networks:
-            - todo
-        # labels:
-        #     com.datadoghq.ad.logs: '[{"source":"todo-postgres". "service":"todo-postgres"}]'
     todo-jaeger:
         container_name: todo-jaeger
         image: jaegertracing/all-in-one:1.35.1
@@ -102,7 +78,6 @@ services:
         
 volumes:
     grafana-data:
-
 
 networks:
     todo:

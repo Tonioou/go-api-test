@@ -14,4 +14,4 @@ postgres:
 otel:
   exporter:
     grpc:
-      endpoint: localhost:4317
+      endpoint: "todo-otel-collector:4317"

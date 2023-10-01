@@ -1,0 +1,14 @@
+# GET Todo
+GET /v1/todo/6b411d62-d826-4e07-88b4-c9a539221fbd HTTP/1.1
+Host: localhost:8080
+
+
+# POST Create Todo
+POST /v1/todo HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Content-Length: 31
+
+{
+    "name": "Second Todo"
+}
