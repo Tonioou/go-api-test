@@ -1,6 +1,7 @@
 package config
 
 import (
+	logger "github.com/Tonioou/go-todo-list/pkg"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"log"
@@ -50,7 +51,7 @@ func NewConfig() *Configs {
 	if err := viper.MergeInConfig(); err != nil {
 		var configFileNotFoundError viper.ConfigFileNotFoundError
 		if errors.As(err, &configFileNotFoundError) {
-			log.Fatal(err)
+			logger.Error(configFileNotFoundError.Error(), err)
 		}
 	}
 
@@ -58,7 +59,7 @@ func NewConfig() *Configs {
 	if err := viper.MergeInConfig(); err != nil {
 		var configFileNotFoundError viper.ConfigFileNotFoundError
 		if errors.As(err, &configFileNotFoundError) {
-			log.Fatal(err)
+			logger.Info("config-local not found")
 		}
 	}
 

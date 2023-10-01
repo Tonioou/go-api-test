@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/Tonioou/go-todo-list/internal/model"
 	logger "github.com/Tonioou/go-todo-list/pkg"
@@ -10,6 +9,7 @@ import (
 	slogecho "github.com/samber/slog-echo"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/Tonioou/go-todo-list/internal/api"
@@ -37,7 +37,6 @@ func main() {
 
 	// open telemetry
 	exp, err := newExporter(ctx, cfg)
-	err = errors.New("err")
 	if err != nil {
 		logger.Fatal("failed to create exporter")
 	}
@@ -72,7 +71,7 @@ func main() {
 		logger.Logger(),
 		slogecho.IgnoreStatus(401, 404),
 	))
-	e.Use(echoprometheus.NewMiddleware(cfg.Service.Name))
+	e.Use(echoprometheus.NewMiddleware(strings.Replace(cfg.Service.Name, "-", "_", -1)))
 
 	go func() {
 		err := e.Start(":8080")

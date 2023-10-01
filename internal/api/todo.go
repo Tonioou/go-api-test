@@ -37,10 +37,10 @@ func (ta *TodoApi) GetById(c echo.Context) error {
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 
-	result, errx := ta.TodoService.GetById(ctx, uuid.MustParse(getTodo.ID))
+	result, err := ta.TodoService.GetById(ctx, uuid.MustParse(getTodo.ID))
 
-	if errx != nil {
-		errorResponse := model.NewErrorResponse(errx)
+	if err != nil {
+		errorResponse := model.NewErrorResponse(err)
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 	return c.JSON(http.StatusOK, result)
@@ -85,9 +85,9 @@ func (ta *TodoApi) Delete(c echo.Context) error {
 		errorResponse := model.NewErrorResponse(err)
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
-	errx := ta.TodoService.Delete(ctx, uuid.MustParse(deleteTodo.ID))
-	if errx != nil {
-		errorResponse := model.NewErrorResponse(errx)
+	err = ta.TodoService.Delete(ctx, uuid.MustParse(deleteTodo.ID))
+	if err != nil {
+		errorResponse := model.NewErrorResponse(err)
 		return c.JSON(errorResponse.StatusCode, errorResponse)
 	}
 	return c.NoContent(http.StatusNoContent)
