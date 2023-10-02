@@ -17,8 +17,8 @@ processors:
 
 
 exporters:
-  jaeger:
-    endpoint: "todo-jaeger:14250"
+  otlp/jaeger:
+    endpoint: "todo-jaeger:4317"
     tls:
       insecure: true
 
@@ -36,4 +36,4 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [jaeger]
+      exporters: [otlp/jaeger]

@@ -12,11 +12,8 @@ services:
             - todo
         depends_on:
             - todo-postgres-rw
-        environment:
-            - POSTGRES_PASSWORD=todo_app
-            - POSTGRES_USERNAME=todo_app
-            - POSTGRES_RW_HOST=todo-postgres-rw
-            - OTEL_EXPORTER_GRPC_ENDPOINT=todo-otel-collector:4317
+        env_file:
+            - envs/app.env
         restart: always
     todo-postgres-rw:
         container_name: todo-postgres
@@ -27,22 +24,22 @@ services:
            - "5432:5432"
         networks:
             - todo
-        environment:
-            - POSTGRES_PASSWORD=postgres
+        env_file:
+            - envs/pg.env
     todo-jaeger:
         container_name: todo-jaeger
-        image: jaegertracing/all-in-one:1.35.1
+        image: jaegertracing/all-in-one:1.49.0
         ports:
             - "16686:16686"
             - "14268"
             - "14250"
-        environment:
-            - COLLECTOR_OTLP_ENABLED=true
+        env_file:
+            - envs/jaeger.env
         networks:
             - todo
     todo-otel-collector:
         container_name: todo-otel-collector
-        image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.52.0
+        image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.86.0
         ports:
             - "1888:1888"
             - "13133:13133"
