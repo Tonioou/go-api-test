@@ -1,14 +1,25 @@
-# GET Todo
-GET /v1/todo/6b411d62-d826-4e07-88b4-c9a539221fbd HTTP/1.1
+### GET Todo
+GET /v1/todo/2dd71930-54a9-49fb-9119-78cc1c8d8c88
 Host: localhost:8080
 
-
-# POST Create Todo
-POST /v1/todo HTTP/1.1
+### POST Create Todo
+POST /v1/todo
 Host: localhost:8080
 Content-Type: application/json
-Content-Length: 31
 
 {
-    "name": "Second Todo"
+  "name": "Second Todo"
 }
+
+### PUT Update Todo
+PUT /v1/todo/2dd71930-54a9-49fb-9119-78cc1c8d8c88
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "name": "Update Todo"
+}
+
+### Delete Todo
+DELETE /v1/todo/006e0a3a-faeb-4aaf-a81f-89c17740ed14 HTTP/1.1
+Host: localhost:8080
